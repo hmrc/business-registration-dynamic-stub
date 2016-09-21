@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.businessregistrationdynamic
+package config
 
 import play.api._
 import play.api.mvc._
@@ -28,7 +28,7 @@ object ControllerConfiguration extends ControllerConfig {
 }
 
 object MicroserviceLoggingFilter extends LoggingFilter {
-  override def controllerNeedsLogging(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsLogging
+  override def controllerNeedsLogging(controllerName: String): Boolean = ControllerConfiguration.paramsForController(controllerName).needsLogging
 }
 
 object StubGlobal

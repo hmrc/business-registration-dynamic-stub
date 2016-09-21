@@ -24,7 +24,7 @@ trait MicroService {
   lazy val scoverageSettings = {
     import scoverage.ScoverageKeys
       Seq(
-        ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;model.*;config.*;.*(AuthService|BuildInfo|Routes).*",
+        ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;config.*;poc.view.*;poc.config.*;.*(AuthService|BuildInfo|Routes).*",
         ScoverageKeys.coverageMinimum := 80,
         ScoverageKeys.coverageFailOnMinimum := false,
         ScoverageKeys.coverageHighlighting := true
@@ -38,6 +38,7 @@ trait MicroService {
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
+      scoverageSettings,
       libraryDependencies ++= appDependencies,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
