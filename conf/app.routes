@@ -1,2 +1,3 @@
 # microservice specific routes
 
+POST        /des-stub            controllers.StubController.show
