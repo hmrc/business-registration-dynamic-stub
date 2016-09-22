@@ -29,21 +29,30 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
   }
 
   "Submit" should {
+
     "return a 202 for basic a JSON body" in new Setup {
       val request = FakeRequest().withJsonBody(Json.toJson("{}"))
       status(call(controller.show(), request)) shouldBe ACCEPTED
     }
+
     "return a 202 for a complex JSON body" in new Setup {
       val request = FakeRequest().withJsonBody(Json.toJson("{'test' : 123, 'test2': 'string', 'test3' : {'obj':'obj2', 'testArray':['1','2','3']}}"))
       status(call(controller.show(), request)) shouldBe ACCEPTED
     }
+
     "return a 400" in new Setup {
       val request = FakeRequest().withBody("""{}""")
       status(call(controller.show(), request)) shouldBe BAD_REQUEST
     }
-    "3return a 400" in new Setup {
+
+    "return a 400 when a request contains invalid json" in new Setup {
       val request = FakeRequest().withTextBody("I'm not Json!")
       status(call(controller.show(), request)) shouldBe BAD_REQUEST
+    }
+
+    "return a json message when a 202 is returned" in new Setup {
+      val request = FakeRequest().withJsonBody(Json.toJson("{}"))
+      jsonBodyOf(await(call(controller.show(), request))) shouldBe Json.parse("""{"status":202,"msg":"Valid Json"}""")
     }
   }
 }
