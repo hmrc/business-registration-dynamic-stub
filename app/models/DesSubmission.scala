@@ -17,10 +17,7 @@
 package models
 
 import org.joda.time.DateTime
-
-
-class DesSubmission {
-
+import play.api.libs.json.Json
 
 case class BusinessAddress(
                           line1 : String,
@@ -31,11 +28,10 @@ case class BusinessAddress(
                           country : Option[String]
                           )
 
-case class BusinessContactDetails(
-                                 phoneNumber : Option[String],
-                                 mobileNumber : Option[String],
-                                 email : Option[String]
-                                 )
+//todo SCRS-2298 - need to make sure at least one of the following exists?
+case class BusinessContactDetails(phoneNumber : Option[String],
+                                  mobileNumber : Option[String],
+                                  email : Option[String])
 
 case class BusinessContactName(
                               firstName : String,
@@ -80,11 +76,18 @@ case class Registration(
                        corporationTax: CorporationTax
                        )
 
-case class FullDesSubmission(
-                            acknowledgementReference : String,
-                            registration : Registration
-                            )
+case class FullDesSubmission(acknowledgementReference : String,
+                             registration : Registration)
 
+object FullDesSubmission {
 
-
+  implicit val bcdReads = Json.format[BusinessContactDetails]
+  implicit val bcnReads = Json.format[BusinessContactName]
+  implicit val baReads = Json.format[BusinessAddress]
+  implicit val ccReads = Json.format[CompletionCapacity]
+  implicit val cTReads = Json.format[CorporationTax]
+  implicit val metadataReads = Json.format[Metadata]
+  implicit val registrationReads = Json.format[Registration]
+  implicit val fullReads = Json.format[FullDesSubmission]
 }
+

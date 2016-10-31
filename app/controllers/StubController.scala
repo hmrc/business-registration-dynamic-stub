@@ -19,7 +19,7 @@ package controllers
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import models.{DesFailureResponse, DesSuccessResponse}
+import models.{FullDesSubmission, DesFailureResponse, DesSuccessResponse}
 import org.joda.time.{DateTimeZone, DateTime}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -41,7 +41,7 @@ trait StubController extends BaseController with ServicesConfig {
   private lazy val invalidJsonResponse = DesFailureResponse("Your submission contains one or more errors")
   private lazy val successDesResponse = DesSuccessResponse(generateTimestamp, generateAckRef)
 
-  val show: Action[JsValue] = Action.async(parse.json) {
+  val submit: Action[JsValue] = Action.async(BodyParsers.parse.json) {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(_, _)) => Future.successful(Ok(Json.toJson(successDesResponse)))
@@ -50,7 +50,7 @@ trait StubController extends BaseController with ServicesConfig {
       }
   }
 
-  private def generateTimestamp : String = {
+  private[controllers] def generateTimestamp : String = {
     val timeStampFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
     val format: SimpleDateFormat = new SimpleDateFormat(timeStampFormat)
     format.format(new Date(dateTime.getMillis))
