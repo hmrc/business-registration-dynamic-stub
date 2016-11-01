@@ -16,6 +16,8 @@
 
 package controllers
 
+import models._
+import org.joda.time.DateTime
 import org.scalatest.WordSpecLike
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
@@ -24,35 +26,98 @@ import play.api.test.Helpers._
 
 class StubControllerSpec extends WordSpecLike with WithFakeApplication with UnitSpec {
 
+  val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
+
   class Setup {
-    val controller = new StubController {}
+    val controller = new StubController {
+      def dateTime = testDateTime
+    }
+  }
+
+  class SetupNoTimestamp {
+    val controller = new StubController {
+      def dateTime = testDateTime
+
+      override def generateTimestamp: String = {
+        dateTime.toString()
+      }
+    }
   }
 
   "Submit" should {
 
-    "return a 202 for basic a JSON body" in new Setup {
-      val request = FakeRequest().withJsonBody(Json.toJson("{}"))
-      status(call(controller.show(), request)) shouldBe ACCEPTED
+    val ackRef = "SCRS01234567890"
+
+    val fullDesSubmission = FullDesSubmission(
+     ackRef,
+      Registration(
+        Metadata(
+          "testBusinessType",
+          "testSessionId",
+          "testCredId",
+          testDateTime,
+          submissionFromAgent = false,
+          "en",
+          CompletionCapacity(
+            "Director",
+            None
+          ),
+          declareAccurateAndComplete = true
+        ),
+        CorporationTax(
+          companyOfficeNumber = "0123456789",
+          companyActiveDate = testDateTime.toString,
+          hasCompanyTakenOverBusiness = false,
+          companyMemberOfGroup = false,
+          "testCompanyName",
+          crn = "crn-0123456789",
+          startDateOfFirstAccountingPeriod = "01/01/1980",
+          intendedAccountsPreparationDate = "10/10/1980",
+          returnsOnCT61 = true,
+          companyACharity = false,
+          None,
+          None,
+          BusinessContactDetails(phoneNumber = Some("1234567890"), None, None)
+        )
+      )
+    )
+
+    val successResponse = Json.toJson(DesSuccessResponse(testDateTime.toString, ackRef))
+    val invalidJsonResponse = Json.toJson(DesFailureResponse("Your submission contains one or more errors"))
+    val malformedJsonResponse = Json.toJson(DesFailureResponse("Invalid JSON message received"))
+
+    "return a 200 with a timestamp and ack ref if the des submission is validated successfully" in new SetupNoTimestamp {
+      val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission))
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe OK
+      jsonBodyOf(result) shouldBe successResponse
     }
 
-    "return a 202 for a complex JSON body" in new Setup {
-      val request = FakeRequest().withJsonBody(Json.toJson("{'test' : 123, 'test2': 'string', 'test3' : {'obj':'obj2', 'testArray':['1','2','3']}}"))
-      status(call(controller.show(), request)) shouldBe ACCEPTED
+    "return a 400 with a reason in json when an invalid des submission fails validation" in new Setup {
+      val request = FakeRequest().withJsonBody(Json.toJson("""{"test" : "toFailValidation"}"""))
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe BAD_REQUEST
+      jsonBodyOf(result) shouldBe invalidJsonResponse
     }
 
-    "return a 400" in new Setup {
-      val request = FakeRequest().withBody("""{}""")
-      status(call(controller.show(), request)) shouldBe BAD_REQUEST
+    "return a 400 with a reason in json when presented with malformed json" in new Setup {
+      val request = FakeRequest().withBody("malformed")
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe BAD_REQUEST
     }
+  }
 
-    "return a 400 when a request contains invalid json" in new Setup {
-      val request = FakeRequest().withTextBody("I'm not Json!")
-      status(call(controller.show(), request)) shouldBe BAD_REQUEST
+  "generateTimeStamp" should {
+
+    "return a valid UTC timestamp based on the datetime present" in new Setup {
+      controller.generateTimestamp shouldBe "2016-10-10T17:00:00.000Z"
     }
+  }
 
-    "return a json message when a 202 is returned" in new Setup {
-      val request = FakeRequest().withJsonBody(Json.toJson("{}"))
-      jsonBodyOf(await(call(controller.show(), request))) shouldBe Json.parse("""{"status":202,"msg":"Valid Json"}""")
+  "generateAckRef" should {
+
+    "return a generated acknowledgement reference number" in new Setup {
+      controller.generateAckRef shouldBe "SCRS01234567890"
     }
   }
 }

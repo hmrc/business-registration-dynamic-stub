@@ -16,28 +16,42 @@
 
 package controllers
 
-import play.api.libs.json.{JsValue, Json}
+import models.{FullDesSubmission, DesFailureResponse, DesSuccessResponse}
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{DateTimeZone, DateTime}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
-object StubController extends StubController {}
-
-case class HttpResponse(status: Int, msg: String)
-
-object HttpResponse {
-  implicit val format = Json.format[HttpResponse]
+object StubController extends StubController {
+  def dateTime = DateTime.now(DateTimeZone.UTC)
 }
 
 trait StubController extends BaseController with ServicesConfig {
 
-  val show: Action[JsValue] = {
-    Action.async(parse.json) { implicit request =>
-      withJsonBody[JsValue]{
-        res => Future.successful(Accepted(Json.toJson(HttpResponse(ACCEPTED, "Valid Json"))))
+  def dateTime: DateTime
+
+  private lazy val malformedJsonResponse = DesFailureResponse("Invalid JSON message received")
+  private lazy val invalidJsonResponse = DesFailureResponse("Your submission contains one or more errors")
+  private lazy val successDesResponse = DesSuccessResponse(generateTimestamp, generateAckRef)
+
+  val submit: Action[JsValue] = Action.async(BodyParsers.parse.json) {
+    implicit request =>
+      Try(request.body.validate[FullDesSubmission]) match {
+        case Success(JsSuccess(_, _)) => Future.successful(Ok(Json.toJson(successDesResponse)))
+        case Success(JsError(_)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
+        case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
-    }
   }
+
+  private[controllers] def generateTimestamp : String = {
+    val dT = ISODateTimeFormat.dateTime()
+    dT.print(dateTime)
+  }
+
+  private[controllers] def generateAckRef: String = "SCRS01234567890"
 }
