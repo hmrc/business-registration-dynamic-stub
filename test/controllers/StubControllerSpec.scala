@@ -110,7 +110,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
   "generateTimeStamp" should {
 
     "return a valid UTC timestamp based on the datetime present" in new Setup {
-      controller.generateTimestamp shouldBe "2016-10-10T18:00:00+01:00"
+      controller.generateTimestamp shouldBe "2016-10-10T17:00:00.000Z"
     }
   }
 

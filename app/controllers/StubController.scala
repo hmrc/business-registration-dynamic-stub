@@ -16,10 +16,8 @@
 
 package controllers
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
 import models.{FullDesSubmission, DesFailureResponse, DesSuccessResponse}
+import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTimeZone, DateTime}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -51,9 +49,8 @@ trait StubController extends BaseController with ServicesConfig {
   }
 
   private[controllers] def generateTimestamp : String = {
-    val timeStampFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
-    val format: SimpleDateFormat = new SimpleDateFormat(timeStampFormat)
-    format.format(new Date(dateTime.getMillis))
+    val dT = ISODateTimeFormat.dateTime()
+    dT.print(dateTime)
   }
 
   private[controllers] def generateAckRef: String = "SCRS01234567890"
