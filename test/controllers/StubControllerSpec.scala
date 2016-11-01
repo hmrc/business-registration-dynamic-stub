@@ -104,8 +104,6 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
       val request = FakeRequest().withBody("malformed")
       val result = await(call(controller.submit(), request))
       status(result) shouldBe BAD_REQUEST
-      //todo SCRS-2298 - doesn't parse as json so unreachable - any way around it?
-      //jsonBodyOf(result).toString() shouldBe malformedJsonResponse
     }
   }
 
@@ -113,6 +111,13 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
 
     "return a valid UTC timestamp based on the datetime present" in new Setup {
       controller.generateTimestamp shouldBe "2016-10-10T18:00:00+01:00"
+    }
+  }
+
+  "generateAckRef" should {
+
+    "return a generated acknowledgement reference number" in new Setup {
+      controller.generateAckRef shouldBe "SCRS01234567890"
     }
   }
 }

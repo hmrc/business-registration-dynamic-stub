@@ -56,5 +56,5 @@ trait StubController extends BaseController with ServicesConfig {
     format.format(new Date(dateTime.getMillis))
   }
 
-  private def generateAckRef: String = "SCRS01234567890"
+  private[controllers] def generateAckRef: String = "SCRS01234567890"
 }
