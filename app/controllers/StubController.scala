@@ -43,7 +43,7 @@ trait StubController extends BaseController with ServicesConfig {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(_, _)) => Future.successful(Ok(Json.toJson(successDesResponse)))
-        case Success(JsError(_)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
+        case Success(JsError(errors)) => Future.successful(BadRequest(Json.toJson(s"$invalidJsonResponse - errors: ${errors.toString()}")))
         case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
   }
