@@ -55,13 +55,11 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
           "testBusinessType",
           "testSessionId",
           "testCredId",
-          testDateTime,
+          "2016-10-10T17:00:00.000Z",
           submissionFromAgent = false,
           "en",
-          CompletionCapacity(
-            "Director",
-            None
-          ),
+          "Director",
+          Some(""),
           declareAccurateAndComplete = true
         ),
         CorporationTax(
