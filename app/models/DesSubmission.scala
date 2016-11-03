@@ -17,7 +17,11 @@
 package models
 
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, JsPath, Json}
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import play.api.libs.json.Writes._
+
 
 case class BusinessAddress(
                           line1 : String,
@@ -39,19 +43,15 @@ case class BusinessContactName(
                               lastName: Option[String]
                               )
 
-case class CompletionCapacity(
-                             completionCapacity : String,
-                             completionCapacityOther : Option[String]
-                             )
-
 case class Metadata(
                    businessType: String,
                    sessionId: String,
                    credentialId: String,
-                   formCreationTimestamp: DateTime,
+                   formCreationTimestamp: String,
                    submissionFromAgent: Boolean,
                    language: String,
-                   completionCapacity: CompletionCapacity,
+                   completionCapacity : String,
+                   completionCapacityOther : Option[String],
                    declareAccurateAndComplete: Boolean
                    )
 
@@ -84,9 +84,18 @@ object FullDesSubmission {
   implicit val bcdReads = Json.format[BusinessContactDetails]
   implicit val bcnReads = Json.format[BusinessContactName]
   implicit val baReads = Json.format[BusinessAddress]
-  implicit val ccReads = Json.format[CompletionCapacity]
   implicit val cTReads = Json.format[CorporationTax]
-  implicit val metadataReads = Json.format[Metadata]
+  implicit val metadataReads: Format[Metadata] = (
+    (__ \ "sessionId").format[String] and
+    (__ \ "credentialId").format[String] and
+    (__ \ "businessType").format[String] and
+    (__ \ "formCreationTimestamp").format[String] and
+    (__ \ "submissionFromAgent").format[Boolean] and
+    (__ \ "language").format[String] and
+    (__ \ "completionCapacity").format[String] and
+    (__ \ "completionCapacityOther").formatNullable[String] and
+    (__ \ "declareAccurateAndComplete").format[Boolean]
+    )(Metadata.apply , unlift(Metadata.unapply))
   implicit val registrationReads = Json.format[Registration]
   implicit val fullReads = Json.format[FullDesSubmission]
 }
