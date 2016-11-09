@@ -19,18 +19,28 @@ package controllers
 import models._
 import org.joda.time.DateTime
 import org.scalatest.WordSpecLike
+import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import play.api.test.Helpers._
+import services.NotificationService
+import org.mockito.Mockito._
+import org.mockito.Matchers
+import play.api.libs.ws.WSResponse
 
-class StubControllerSpec extends WordSpecLike with WithFakeApplication with UnitSpec {
+import scala.concurrent.Future
+
+class StubControllerSpec extends WordSpecLike with WithFakeApplication with UnitSpec with MockitoSugar {
 
   val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
+
+  val mockNotifService = mock[NotificationService]
 
   class Setup {
     val controller = new StubController {
       def dateTime = testDateTime
+      val notificationService = mockNotifService
     }
   }
 
@@ -38,10 +48,18 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     val controller = new StubController {
       def dateTime = testDateTime
 
+      val notificationService = mockNotifService
+
       override def generateTimestamp: String = {
         dateTime.toString()
       }
     }
+  }
+
+  def mockResponse(statusCode : Int) : WSResponse = {
+    val m = mock[WSResponse]
+    when(m.status).thenReturn(statusCode)
+    m
   }
 
   "Submit" should {
@@ -116,6 +134,78 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
 
     "return a generated acknowledgement reference number" in new Setup {
       controller.generateAckRef shouldBe "SCRS01234567890"
+    }
+  }
+
+  "cacheNotificationData" should {
+    val request = FakeRequest()
+      .withBody(Json.obj(
+        "ackRef" -> "testAckRef",
+        "timestamp" -> "1234567890",
+        "regime" -> "testRegime",
+        "business-tax-identifier" -> "1234567890",
+        "status" -> "04"
+      ))
+
+    val data = CurlETMPNotification(
+      "testAckRef",
+      "1234567890",
+      "testRegime",
+      Some("1234567890"),
+      "04"
+    )
+
+    "return an OK" in new Setup {
+      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+        .thenReturn(Future.successful(false))
+
+      val result = controller.cacheNotificationData()(request)
+      status(result) shouldBe OK
+    }
+
+    "return an internal server error" in new Setup {
+      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+        .thenReturn(Future.successful(true))
+
+      val result = controller.cacheNotificationData()(request)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "updateCTRecord" should {
+    val data = ETMPNotification(
+      "1234567890","testRegime",Some("1234567890"),"04"
+    )
+
+    val successResponse = mockResponse(OK)
+
+    "return a bad request" in new Setup {
+      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+        .thenReturn(Future.successful(None))
+
+      val result = controller.updateCTRecord("testAckRef")(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
+    }
+
+    "return a OK" in new Setup {
+      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+        .thenReturn(Future.successful(Some(data)))
+
+      when(mockNotifService.callBRN(Matchers.eq("testAckRef"), Matchers.eq(data)))
+        .thenReturn(Future.successful(successResponse))
+
+      val result = controller.updateCTRecord("testAckRef")(FakeRequest())
+      status(result) shouldBe OK
+    }
+  }
+
+  "removeCachedNotifications" should {
+    "return an ok" in new Setup {
+      when(mockNotifService.destroyCachedNotifications)
+        .thenReturn(Future.successful("dropped"))
+
+      val result = controller.removeCachedNotifications()(FakeRequest())
+      status(result) shouldBe OK
     }
   }
 }
