@@ -1,3 +1,9 @@
 # microservice specific routes
 
 POST        /corporation-tax            controllers.StubController.submit
+
+POST        /cache-etmp-notification    controllers.StubController.cacheNotificationData
+
+GET         /simulate-des-post/:ackRef  controllers.StubController.updateCTRecord(ackRef)
+
+GET         /wipe                       controllers.StubController.removeCachedNotifications()
