@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,4 +93,9 @@ trait StubController extends BaseController with ServicesConfig {
   }
 
   private[controllers] def generateAckRef: String = "SCRS01234567890"
+
+
+  val submitPaye = Action {
+    implicit request => Ok
+  }
 }
