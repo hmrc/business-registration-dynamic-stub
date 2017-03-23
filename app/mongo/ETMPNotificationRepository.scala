@@ -30,7 +30,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.control.NoStackTrace
 
 object ETMPNotificationRepository extends MongoDbConnection {
+  // $COVERAGE-OFF$
   private lazy val repository = new ETMPNotificationMongoRepository
+  // $COVERAGE-ON$
 
   def apply() : ETMPNotificationRepository = repository
 }

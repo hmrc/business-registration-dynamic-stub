@@ -21,7 +21,7 @@ import mongo.ETMPNotificationRepository
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
@@ -46,15 +46,6 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     m
   }
 
-  "NotificationService" should {
-    "use the correct variables" in {
-      NotificationService.etmpRepo shouldBe ETMPNotificationRepository()
-      NotificationService.busRegNotif shouldBe "http://localhost:9661/business-registration-notification"
-      NotificationService.username shouldBe "foo"
-      NotificationService.password shouldBe "bar"
-    }
-  }
-
   "cacheNotification" should {
 
     val data = CurlETMPNotification(
@@ -65,7 +56,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     val fail = mockWriteResult(true)
 
     "return false" in new Setup {
-      when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
+      when(mockRepo.cacheETMPNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(success))
 
       val result = await(TestService.cacheNotification(data))
@@ -73,7 +64,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     }
 
     "return true" in new Setup {
-      when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
+      when(mockRepo.cacheETMPNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(fail))
 
       val result = await(TestService.cacheNotification(data))
@@ -88,7 +79,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     )
 
     "return an optional ETMP notif model" in new Setup {
-      when(mockRepo.retrieveETMPNotification(Matchers.any()))
+      when(mockRepo.retrieveETMPNotification(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(data)))
 
       val result = await(TestService.getCachedNotification("testAcKRef"))
@@ -96,7 +87,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     }
 
     "return None" in new Setup {
-      when(mockRepo.retrieveETMPNotification(Matchers.any()))
+      when(mockRepo.retrieveETMPNotification(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       val result = await(TestService.getCachedNotification("testAcKRef"))

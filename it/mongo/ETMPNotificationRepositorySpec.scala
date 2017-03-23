@@ -28,6 +28,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ETMPNotificationRepositorySpec extends UnitSpec with MongoSpecSupport with BeforeAndAfterEach with ScalaFutures with Eventually with WithFakeApplication {
 
+  override def bindModules = Seq(new com.kenshoo.play.metrics.PlayModule)
+
   class Setup {
     val repository = new ETMPNotificationMongoRepository()
     await(repository.drop)

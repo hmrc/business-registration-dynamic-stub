@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import play.api.test.Helpers._
 import services.NotificationService
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import play.api.libs.ws.WSResponse
 
 import scala.concurrent.Future
@@ -36,6 +36,8 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
   val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
 
   val mockNotifService = mock[NotificationService]
+
+  implicit val materializer = fakeApplication.materializer
 
   class Setup {
     val controller = new StubController {
@@ -103,21 +105,22 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     val malformedJsonResponse = Json.toJson(DesFailureResponse("Invalid JSON message received"))
 
     "return a 200 with a timestamp and ack ref if the des submission is validated successfully" in new SetupNoTimestamp {
-      val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission))
+      val request = FakeRequest().withBody(Json.toJson(fullDesSubmission))
       val result = await(call(controller.submit(), request))
       status(result) shouldBe OK
       jsonBodyOf(result) shouldBe successResponse
     }
 
     "return a 400 with a reason in json when an invalid des submission fails validation" in new Setup {
-      val request = FakeRequest().withJsonBody(Json.toJson("""{"test" : "toFailValidation"}"""))
+      val request = FakeRequest().withBody(Json.toJson("""{"test" : "toFailValidation"}"""))
       val result = await(call(controller.submit(), request))
       status(result) shouldBe BAD_REQUEST
       jsonBodyOf(result) shouldBe invalidJsonResponse
     }
 
     "return a 400 with a reason in json when presented with malformed json" in new Setup {
-      val request = FakeRequest().withBody("malformed")
+      import play.api.http.HeaderNames.CONTENT_TYPE
+      val request = FakeRequest().withBody("malformed").withHeaders(CONTENT_TYPE -> "application/json")
       val result = await(call(controller.submit(), request))
       status(result) shouldBe BAD_REQUEST
     }
@@ -156,7 +159,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     )
 
     "return an OK" in new Setup {
-      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+      when(mockNotifService.cacheNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(false))
 
       val result = controller.cacheNotificationData()(request)
@@ -164,7 +167,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     }
 
     "return an internal server error" in new Setup {
-      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+      when(mockNotifService.cacheNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(true))
 
       val result = controller.cacheNotificationData()(request)
@@ -180,7 +183,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     val successResponse = mockResponse(OK)
 
     "return a bad request" in new Setup {
-      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+      when(mockNotifService.getCachedNotification(ArgumentMatchers.eq("testAckRef")))
         .thenReturn(Future.successful(None))
 
       val result = controller.updateCTRecord("testAckRef")(FakeRequest())
@@ -188,10 +191,10 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     }
 
     "return a OK" in new Setup {
-      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+      when(mockNotifService.getCachedNotification(ArgumentMatchers.eq("testAckRef")))
         .thenReturn(Future.successful(Some(data)))
 
-      when(mockNotifService.callBRN(Matchers.eq("testAckRef"), Matchers.eq(data)))
+      when(mockNotifService.callBRN(ArgumentMatchers.eq("testAckRef"), ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(successResponse))
 
       val result = controller.updateCTRecord("testAckRef")(FakeRequest())

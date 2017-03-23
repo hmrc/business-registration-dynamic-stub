@@ -19,6 +19,7 @@ package controllers
 import models.{CurlETMPNotification, DesFailureResponse, DesSuccessResponse, FullDesSubmission}
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import services.NotificationService
@@ -31,11 +32,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
 object StubController extends StubController {
+  // $COVERAGE-OFF$
   def dateTime = DateTime.now(DateTimeZone.UTC)
-
   val notificationService = NotificationService
-
   val busRegNotification = baseUrl("business-registration-notification")
+  // $COVERAGE-ON$
 }
 
 trait StubController extends BaseController with ServicesConfig {
@@ -48,11 +49,14 @@ trait StubController extends BaseController with ServicesConfig {
   private lazy val invalidJsonResponse = DesFailureResponse("Your submission contains one or more errors")
   private lazy val successDesResponse = DesSuccessResponse(generateTimestamp, generateAckRef)
 
-  val submit: Action[JsValue] = Action.async(BodyParsers.parse.json) {
+  val submit: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(_, _)) => Future.successful(Ok(Json.toJson(successDesResponse)))
-        case Success(JsError(errors)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
+        case Success(JsError(errors)) => {
+          Logger.info(s"Errors processing submission : ${errors}")
+          Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
+        }
         case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
   }
