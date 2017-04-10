@@ -4,7 +4,7 @@ POST        /corporation-tax            controllers.StubController.submit
 
 POST        /cache-etmp-notification    controllers.StubController.cacheNotificationData
 
-GET         /simulate-des-post/:ackRef  controllers.StubController.updateCTRecord(ackRef)
+GET         /simulate-des-post/:ackRef  controllers.StubController.notifyBRN(ackRef)
 
 GET         /wipe                       controllers.StubController.removeCachedNotifications()
 

@@ -68,7 +68,7 @@ trait StubController extends BaseController with ServicesConfig {
       }
   }
 
-  def updateCTRecord(ackRef : String) : Action[AnyContent] = Action.async {
+  def notifyBRN(ackRef : String) : Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.getCachedNotification(ackRef) flatMap {
         case Some(record) =>
