@@ -183,7 +183,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
       when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
         .thenReturn(Future.successful(None))
 
-      val result = controller.updateCTRecord("testAckRef")(FakeRequest())
+      val result = controller.notifyBRN("testAckRef")(FakeRequest())
       status(result) shouldBe BAD_REQUEST
     }
 
@@ -194,7 +194,7 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
       when(mockNotifService.callBRN(Matchers.eq("testAckRef"), Matchers.eq(data)))
         .thenReturn(Future.successful(successResponse))
 
-      val result = controller.updateCTRecord("testAckRef")(FakeRequest())
+      val result = controller.notifyBRN("testAckRef")(FakeRequest())
       status(result) shouldBe OK
     }
   }
