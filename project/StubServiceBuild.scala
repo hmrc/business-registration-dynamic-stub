@@ -11,25 +11,25 @@ object StubServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-  import play.PlayImport._
   import play.core.PlayVersion
+  import play.sbt.PlayImport._
 
 
-  private val microserviceBootstrapVersion = "4.4.0"
-  private val playHealthVersion = "1.1.0"
-  private val playConfigVersion = "2.1.0"
-  private val hmrcTestVersion = "1.8.0"
+  private val microserviceBootstrapVersion = "5.14.0"
+  private val playHealthVersion = "2.1.0"
+  private val playConfigVersion = "4.3.0"
+  private val hmrcTestVersion = "2.3.0"
   private val scalaTestVersion = "2.2.6"
-  private val stubeCoreVersion = "4.0.0"
+  private val stubeCoreVersion = "5.1.0"
   private val pegdownVersion = "1.6.0"
-  private val playReactiveMongoVersion = "4.8.0"
+  private val playReactiveMongoVersion = "5.2.0"
   
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "play-json-logger" % "2.1.1",
+    "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
     "uk.gov.hmrc" %% "play-reactivemongo" % playReactiveMongoVersion
   )
 
@@ -45,7 +45,9 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "uk.gov.hmrc" %% "reactivemongo-test" % "1.6.0" % scope
+        "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
+        "org.mockito" % "mockito-all" % "1.9.5" % scope
       )
     }.test
   }
@@ -60,7 +62,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "uk.gov.hmrc" %% "reactivemongo-test" % "1.6.0" % scope
+        "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope
       )
     }.test
   }
