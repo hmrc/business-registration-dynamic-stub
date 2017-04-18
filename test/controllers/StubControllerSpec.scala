@@ -121,11 +121,12 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
       jsonBodyOf(result) shouldBe invalidJsonResponse
     }
 
-//    "return a 400 with a reason in json when presented with malformed json" in new Setup {
-//      val request = FakeRequest().withBody("malformed")
-//      val result = await(call(controller.submit(), request))
-//      status(result) shouldBe BAD_REQUEST
-//    }
+    "return a 400 with a reason in json when presented with malformed json" in new Setup {
+      import play.api.http.HeaderNames.CONTENT_TYPE
+      val request = FakeRequest().withBody("malformed").withHeaders(CONTENT_TYPE -> "application/json")
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe BAD_REQUEST
+    }
   }
 
   "generateTimeStamp" should {
