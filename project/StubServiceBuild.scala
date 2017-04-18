@@ -11,26 +11,27 @@ object StubServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-  import play.PlayImport._
+  import play.sbt.PlayImport._
   import play.core.PlayVersion
 
 
-  private val microserviceBootstrapVersion = "4.4.0"
-  private val playHealthVersion = "1.1.0"
-  private val playConfigVersion = "2.1.0"
-  private val hmrcTestVersion = "1.8.0"
+  private val microserviceBootstrapVersion = "5.15.0"
+  private val playHealthVersion = "2.1.0"
+  private val playConfigVersion = "4.3.0"
+  private val hmrcTestVersion = "2.3.0"
   private val scalaTestVersion = "2.2.6"
-  private val stubeCoreVersion = "4.0.0"
   private val pegdownVersion = "1.6.0"
-  private val playReactiveMongoVersion = "4.8.0"
-  
+  private val playJsonLoggerVersion = "3.0.0"
+  private val playReactivemongoVersion = "5.2.0"
+  private val reactiveMongoTest = "2.0.0"
+  private val scalaTestPlusVersion = "1.5.1"
+
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "play-reactivemongo" % playReactivemongoVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
-    "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "play-json-logger" % "2.1.1",
-    "uk.gov.hmrc" %% "play-reactivemongo" % playReactiveMongoVersion
+    "uk.gov.hmrc" %% "play-config" % playConfigVersion
   )
 
   trait TestDependencies {
@@ -45,7 +46,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "uk.gov.hmrc" %% "reactivemongo-test" % "1.6.0" % scope
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % scope,
+        "org.mockito" % "mockito-core" % "2.6.2"
       )
     }.test
   }
@@ -57,10 +59,10 @@ private object AppDependencies {
 
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % "2.2.6" % scope,
-        "org.pegdown" % "pegdown" % "1.5.0" % scope,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "uk.gov.hmrc" %% "reactivemongo-test" % "1.6.0" % scope
+        "uk.gov.hmrc" %% "reactivemongo-test" % reactiveMongoTest % scope
       )
     }.test
   }

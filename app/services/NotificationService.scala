@@ -28,10 +28,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 object NotificationService extends NotificationService {
+  // $COVERAGE-OFF$
   val etmpRepo = ETMPNotificationRepository()
   val busRegNotif = s"${baseUrl("business-registration-notification")}/business-registration-notification"
   val username = getString(s"$env.basicAuth.username")
   val password = getString(s"$env.basicAuth.password")
+  // $COVERAGE-ON$
 }
 
 trait NotificationService extends ServicesConfig {
