@@ -16,6 +16,8 @@
 
 package controllers
 
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
 import models._
 import org.joda.time.DateTime
 import org.scalatest.WordSpecLike
@@ -32,6 +34,9 @@ import play.api.libs.ws.WSResponse
 import scala.concurrent.Future
 
 class StubControllerSpec extends WordSpecLike with WithFakeApplication with UnitSpec with MockitoSugar {
+
+  implicit val system = ActorSystem("test")
+  implicit def mat: Materializer = ActorMaterializer()
 
   val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
 
@@ -117,7 +122,8 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     }
 
     "return a 400 with a reason in json when presented with malformed json" in new Setup {
-      val request = FakeRequest().withBody("malformed")
+      import play.api.http.HeaderNames.CONTENT_TYPE
+      val request = FakeRequest().withBody("malformed").withHeaders(CONTENT_TYPE -> "application/json")
       val result = await(call(controller.submit(), request))
       status(result) shouldBe BAD_REQUEST
     }
