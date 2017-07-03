@@ -19,6 +19,7 @@ package controllers
 import models.{CurlETMPNotification, DesFailureResponse, DesSuccessResponse, FullDesSubmission}
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import services.NotificationService
@@ -51,7 +52,9 @@ trait StubController extends BaseController with ServicesConfig {
   val submit: Action[JsValue] = Action.async(BodyParsers.parse.json) {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
-        case Success(JsSuccess(_, _)) => Future.successful(Ok(Json.toJson(successDesResponse)))
+        case Success(JsSuccess(desSubmission, _)) =>
+          Logger.debug(s"[Full DES Submission] [Success] - $desSubmission")
+          Future.successful(Ok(Json.toJson(successDesResponse)))
         case Success(JsError(errors)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
         case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
