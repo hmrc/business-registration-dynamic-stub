@@ -57,13 +57,13 @@ case class Metadata(
 
 case class CorporationTax(
                          companyOfficeNumber : String,
-                         companyActiveDate: String,
+                         companyActiveDate: Option[String],
                          hasCompanyTakenOverBusiness: Boolean,
                          companyMemberOfGroup : Boolean,
                          companiesHouseCompanyName : String,
-                         crn : String,
-                         startDateOfFirstAccountingPeriod : String,
-                         intendedAccountsPreparationDate : String,
+                         crn : Option[String],
+                         startDateOfFirstAccountingPeriod : Option[String],
+                         intendedAccountsPreparationDate : Option[String],
                          returnsOnCT61 : Boolean,
                          companyACharity : Boolean,
                          businessAddress : Option[BusinessAddress],
