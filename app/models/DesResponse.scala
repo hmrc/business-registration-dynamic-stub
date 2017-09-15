@@ -16,7 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
+import scala.language.implicitConversions
 
 case class DesFailureResponse(reason: String)
 
@@ -28,4 +31,18 @@ case class DesSuccessResponse(processingDate: String, acknowledgementReference: 
 
 object DesSuccessResponse {
   implicit val formats = Json.format[DesSuccessResponse]
+}
+
+case class SetupDesResponse(status: Int, responseJson: Option[JsValue])
+
+object SetupDesResponse {
+
+  val mongoFormat: OFormat[SetupDesResponse] = Json.format[SetupDesResponse]
+
+  implicit def formatToOFormat(format: Format[SetupDesResponse]): OFormat[SetupDesResponse] = format.asInstanceOf[OFormat[SetupDesResponse]]
+
+  val responseWrites: Writes[SetupDesResponse] = (
+    (__ \ "status").write[Int] and
+    (__ \ "responseJson").writeNullable[JsValue]
+  )(unlift(SetupDesResponse.unapply))
 }

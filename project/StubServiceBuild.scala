@@ -30,7 +30,8 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
-    "uk.gov.hmrc" %% "play-reactivemongo" % playReactiveMongoVersion
+    "uk.gov.hmrc" %% "play-reactivemongo" % playReactiveMongoVersion,
+    "org.typelevel" %% "cats" % "0.9.0"
   )
 
   trait TestDependencies {
@@ -63,7 +64,8 @@ private object AppDependencies {
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
+        "com.github.tomakehurst" % "wiremock" % "2.5.0" % scope
       )
     }.test
   }

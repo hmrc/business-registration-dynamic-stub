@@ -17,7 +17,7 @@
 package services
 
 import models.{CurlETMPNotification, ETMPNotification}
-import mongo.ETMPNotificationRepository
+import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
@@ -29,6 +29,7 @@ import scala.concurrent.Future
 class NotificationServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val mockRepo = mock[ETMPNotificationRepository]
+  val mockDesRespRepo = mock[DESResponseRepository]
 
   class Setup {
     object TestService extends NotificationService {
@@ -37,6 +38,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
 
       val username = "testUserName"
       val password = "testPassword"
+      val desResponseRepository: DESResponseRepository = mockDesRespRepo
     }
   }
 

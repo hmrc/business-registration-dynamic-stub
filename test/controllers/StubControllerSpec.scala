@@ -18,22 +18,25 @@ package controllers
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
+import cats.data.OptionT
 import models._
 import org.joda.time.DateTime
-import org.scalatest.WordSpecLike
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 import play.api.test.Helpers._
 import services.NotificationService
 import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Matchers.{any, eq => eqTo}
 import play.api.libs.ws.WSResponse
+import play.api.mvc.{AnyContentAsJson, Result}
+import reactivemongo.api.commands.DefaultWriteResult
 
 import scala.concurrent.Future
 
-class StubControllerSpec extends WordSpecLike with WithFakeApplication with UnitSpec with MockitoSugar {
+class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecHelper {
 
   implicit val system = ActorSystem("test")
   implicit def mat: Materializer = ActorMaterializer()
@@ -108,6 +111,10 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     val malformedJsonResponse = Json.toJson(DesFailureResponse("Invalid JSON message received"))
 
     "return a 200 with a timestamp and ack ref if the des submission is validated successfully" in new SetupNoTimestamp {
+
+      when(mockNotifService.fetchNextDesResponse)
+        .thenReturn(OptionT(Future.successful(None: Option[SetupDesResponse])))
+
       val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission))
       val result = await(call(controller.submit(), request))
       status(result) shouldBe OK
@@ -219,6 +226,34 @@ class StubControllerSpec extends WordSpecLike with WithFakeApplication with Unit
     "return an ok" in new Setup {
       val result = controller.submitPaye()(FakeRequest())
       status(result) shouldBe OK
+    }
+  }
+
+  "setupNextDESResponse" should {
+
+    val writeResult = DefaultWriteResult(ok = true, 1, Nil, None, None, None)
+
+    "not parse the request body if nothing was supplied and return an ok" in new Setup {
+      when(mockNotifService.setupNextDESResponse(eqTo(BAD_GATEWAY), eqTo(None)))
+        .thenReturn(Future.successful(writeResult))
+
+      val result: Result = await(call(controller.setupNextDESResponse(BAD_GATEWAY), FakeRequest()))
+
+      result.status shouldBe OK
+    }
+
+    "parse the request body if it was supplied and return an ok" in new Setup {
+      val json: JsObject = Json.obj("test" -> "json")
+
+      when(mockNotifService.setupNextDESResponse(eqTo(BAD_GATEWAY), eqTo(json.asOpt[JsValue])))
+        .thenReturn(Future.successful(writeResult))
+
+      val requestWithJson: FakeRequest[AnyContentAsJson] =
+        FakeRequest().withJsonBody(json).withHeaders("Content-Type" -> "application/json")
+
+      val result: Result = await(call(controller.setupNextDESResponse(BAD_GATEWAY), requestWithJson))
+
+      result.status shouldBe OK
     }
   }
 }
