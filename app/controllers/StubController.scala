@@ -16,16 +16,17 @@
 
 package controllers
 
-import models.{CurlETMPNotification, DesFailureResponse, DesSuccessResponse, FullDesSubmission}
+import cats.{Foldable, Functor, Monad}
+import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import play.api.libs.json._
 import play.api.mvc._
 import services.NotificationService
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import cats.instances.FutureInstances
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,7 +40,7 @@ object StubController extends StubController {
   val busRegNotification = baseUrl("business-registration-notification")
 }
 
-trait StubController extends BaseController with ServicesConfig {
+trait StubController extends BaseController with ServicesConfig with FutureInstances {
 
   def dateTime: DateTime
 
@@ -53,11 +54,22 @@ trait StubController extends BaseController with ServicesConfig {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(desSubmission, _)) =>
-          Logger.debug(s"[Full DES Submission] [Success] - $desSubmission")
-          Future.successful(Ok(Json.toJson(successDesResponse)))
+          notificationService.fetchNextDesResponse.semiflatMap { response =>
+            notificationService.resetDesResponse.map { _ =>
+              Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
+            }
+          }.getOrElse{
+            Logger.debug(s"[Full DES Submission] [Success] - $desSubmission")
+            Ok(Json.toJson(successDesResponse))
+          }
         case Success(JsError(errors)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
         case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
+  }
+
+  def setupNextDESResponse(status: Int): Action[AnyContent] = Action.async(BodyParsers.parse.anyContent) {
+    implicit request =>
+      notificationService.setupNextDESResponse(status, request.body.asJson) map (_ => Ok)
   }
 
   def cacheNotificationData : Action[JsValue] = Action.async(parse.json) {

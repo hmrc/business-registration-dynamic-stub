@@ -16,12 +16,14 @@
 
 package services
 
-import models.{CurlETMPNotification, ETMPNotification}
-import mongo.ETMPNotificationRepository
-import play.api.libs.json.Json
+import cats.data.OptionT
+import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
+import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WS, WSAuthScheme, WSResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import play.api.Play.current
+import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,6 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object NotificationService extends NotificationService {
   val etmpRepo = ETMPNotificationRepository()
+  val desResponseRepository: DESResponseRepository = DESResponseRepository()
   val busRegNotif = s"${baseUrl("business-registration-notification")}/business-registration-notification"
   val username = getString(s"$env.basicAuth.username")
   val password = getString(s"$env.basicAuth.password")
@@ -37,6 +40,7 @@ object NotificationService extends NotificationService {
 trait NotificationService extends ServicesConfig {
 
   val etmpRepo : ETMPNotificationRepository
+  val desResponseRepository: DESResponseRepository
 
   val busRegNotif : String
 
@@ -52,6 +56,15 @@ trait NotificationService extends ServicesConfig {
   def getCachedNotification(ackRef : String) : Future[Option[ETMPNotification]] = {
     etmpRepo.retrieveETMPNotification(ackRef)
   }
+
+  def setupNextDESResponse(status: Int, optJson: Option[JsValue]): Future[WriteResult] = {
+    val desResponse = SetupDesResponse(status, optJson)
+    desResponseRepository.storeNextDesResponse(desResponse)
+  }
+
+  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = desResponseRepository.fetchNextDesResponse
+
+  def resetDesResponse: Future[Boolean] = desResponseRepository.resetDesResponse.map(_.ok)
 
   // $COVERAGE-OFF$
   def callBRN(ackRef : String, eTMPNotification: ETMPNotification) : Future[WSResponse] = {
