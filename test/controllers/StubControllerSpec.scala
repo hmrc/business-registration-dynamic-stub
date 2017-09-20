@@ -229,6 +229,13 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     }
   }
 
+  "topup" should {
+    "return an accepted" in new Setup {
+      val result = controller.topup ()(FakeRequest())
+      status(result) shouldBe ACCEPTED
+    }
+  }
+
   "setupNextDESResponse" should {
 
     val writeResult = DefaultWriteResult(ok = true, 1, Nil, None, None, None)
