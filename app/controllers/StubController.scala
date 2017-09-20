@@ -113,4 +113,10 @@ trait StubController extends BaseController with ServicesConfig with FutureInsta
   val submitPaye = Action {
     implicit request => Ok
   }
+
+  val topup = Action {
+    implicit request =>
+      Logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
+      Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
+  }
 }
