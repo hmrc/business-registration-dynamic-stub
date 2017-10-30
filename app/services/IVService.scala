@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package helpers
+package services
 
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.libs.json.JsValue
-import play.api.libs.ws.{WS, WSRequest, WSResponse}
-import play.api.mvc.Results.EmptyContent
+import cats.data.OptionT
+import models.SetupIVOutcome
+import mongo.IVOutcomeRepository
+import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
 
-trait APIHelper {
-  expects: OneServerPerSuite =>
+object IVService {
+  val ivOutcomeRepository: IVOutcomeRepository = IVOutcomeRepository()
 
-  private def client(path: String): WSRequest = WS.url(s"http://localhost:$port/$path").withFollowRedirects(false)
-
-  def wsPost(path: String, body: Option[JsValue] = None): Future[WSResponse] = {
-    body.fold(client(path).post(EmptyContent()))(json => client(path).post(json))
+  def setupIVOutcome(journeyId: String, outcome: String): Future[WriteResult] = {
+    val desResponse = SetupIVOutcome(journeyId, outcome)
+    ivOutcomeRepository.upsertIVOutcome(desResponse)
   }
 
-  def wsGet(path: String): Future[WSResponse] = client(path).get
+  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = ivOutcomeRepository.fetchIVOutcome(journeyId)
 }
