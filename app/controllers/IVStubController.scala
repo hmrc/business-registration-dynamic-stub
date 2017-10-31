@@ -36,10 +36,7 @@ object IVStubController extends BaseController with ServicesConfig with FutureIn
           "result" -> iv.outcome,
           "token" -> "aaaa-bbbb-ccccc"
         )))
-      }.getOrElse{
-        Logger.info("============= NOT FOUND ===============")
-        NotFound
-      }
+      }.getOrElse(NotFound)
   }
 
   def setupIVOutcome(journeyId: String, outcome: String): Action[AnyContent] = Action.async {
