@@ -38,7 +38,7 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
     desResponseRepo.awaitDrop
   }
 
-  val submissionPath = "corporation-tax"
+  val submissionPath = "business-registration/corporation-tax"
 
   val desSubmissionJson: JsValue = Json.parse(
     """
@@ -77,7 +77,7 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
   "POST /setup-next-des-response" should {
 
-    val uri = "setup-next-des-response"
+    val uri = "business-registration/setup-next-des-response"
 
     "setup a des response status for the next call to /corporation-tax and once called reset the setup response" in new Setup {
 
