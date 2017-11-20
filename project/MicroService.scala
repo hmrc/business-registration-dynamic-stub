@@ -44,6 +44,7 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+      scalaVersion := "2.11.11",
       routesGenerator := StaticRoutesGenerator
     )
     .configs(IntegrationTest)
@@ -58,6 +59,7 @@ trait MicroService {
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
       resolvers += Resolver.jcenterRepo
     )
+
 }
 
 private object TestPhases {

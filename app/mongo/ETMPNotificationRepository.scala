@@ -27,7 +27,6 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.control.NoStackTrace
 
 object ETMPNotificationRepository extends MongoDbConnection {
   private lazy val repository = new ETMPNotificationMongoRepository

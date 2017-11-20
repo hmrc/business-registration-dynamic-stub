@@ -17,9 +17,8 @@
 package controllers
 
 import cats.instances.FutureInstances
-import play.api.Logger
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, BodyParsers}
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent}
 import services.IVService
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.microservice.controller.BaseController

@@ -18,7 +18,7 @@ package mongo
 
 import cats.data.OptionT
 import models.SetupDesResponse
-import play.api.libs.json.{Format, Json, Writes}
+import play.api.libs.json.Json
 import play.modules.reactivemongo.MongoDbConnection
 import reactivemongo.api.DB
 import reactivemongo.api.commands.WriteResult
