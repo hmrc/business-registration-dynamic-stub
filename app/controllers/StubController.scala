@@ -16,7 +16,6 @@
 
 package controllers
 
-import cats.{Foldable, Functor, Monad}
 import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
