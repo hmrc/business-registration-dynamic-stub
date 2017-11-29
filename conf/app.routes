@@ -10,4 +10,6 @@ GET         /wipe                               controllers.StubController.remov
 
 POST        /pay-as-you-earn                    controllers.StubController.submitPaye
 
+POST        /value-added-tax                    controllers.StubController.submitVat
+
 POST        /setup-next-des-response/:status    controllers.StubController.setupNextDESResponse(status: Int)
