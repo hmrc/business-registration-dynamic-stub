@@ -110,7 +110,11 @@ trait StubController extends BaseController with ServicesConfig with FutureInsta
 
 
   val submitPaye = Action {
-    implicit request => Ok
+    implicit request => Accepted
+  }
+
+  val submitVat = Action {
+    implicit request => Accepted
   }
 
   val topup = Action {

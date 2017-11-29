@@ -223,9 +223,16 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
   }
 
   "submitPaye" should {
-    "return an ok" in new Setup {
+    "return an accepted" in new Setup {
       val result = controller.submitPaye()(FakeRequest())
-      status(result) shouldBe OK
+      status(result) shouldBe ACCEPTED
+    }
+  }
+
+  "submitVat" should {
+    "return an accepted" in new Setup {
+      val result = controller.submitVat()(FakeRequest())
+      status(result) shouldBe ACCEPTED
     }
   }
 
