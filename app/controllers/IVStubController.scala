@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,26 @@
 
 package controllers
 
+import javax.inject.Inject
+
 import cats.instances.FutureInstances
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.IVService
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-object IVStubController extends BaseController with ServicesConfig with FutureInstances {
+class IVStubControllerImpl @Inject()(val iVService: IVService) extends IVStubController
+
+trait IVStubController extends BaseController with FutureInstances {
+
+  val iVService: IVService
 
   def ivOutcome(journeyId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      IVService.fetchIVOutcome(journeyId).semiflatMap { iv =>
+      iVService.fetchIVOutcome(journeyId).semiflatMap { iv =>
         Future.successful(Ok(Json.obj(
           "result" -> iv.outcome,
           "token" -> "aaaa-bbbb-ccccc"
@@ -40,6 +45,6 @@ object IVStubController extends BaseController with ServicesConfig with FutureIn
 
   def setupIVOutcome(journeyId: String, outcome: String): Action[AnyContent] = Action.async {
     implicit request =>
-      IVService.setupIVOutcome(journeyId, outcome) map (_ => Ok)
+      iVService.setupIVOutcome(journeyId, outcome) map (_ => Ok)
   }
 }

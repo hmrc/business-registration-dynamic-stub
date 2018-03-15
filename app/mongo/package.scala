@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package models
+import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.DefaultDB
 
-import play.api.libs.json._
+package object mongo {
 
-import scala.language.implicitConversions
-
-case class SetupIVOutcome(journeyId: String, outcome: String)
-
-object SetupIVOutcome {
-
-  val mongoFormat: OFormat[SetupIVOutcome] = Json.format[SetupIVOutcome]
-
-  implicit def formatToOFormat(format: Format[SetupIVOutcome]): OFormat[SetupIVOutcome] = format.asInstanceOf[OFormat[SetupIVOutcome]]
+  implicit def componentToDB(implicit mongo: ReactiveMongoComponent): () => DefaultDB = mongo.mongoConnector.db
 }

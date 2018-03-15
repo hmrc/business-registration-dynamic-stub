@@ -1,15 +1,15 @@
 # microservice specific routes
 
-POST        /corporation-tax                    controllers.StubController.submit
+POST        /corporation-tax                    @controllers.StubController.submit
 
-POST        /cache-etmp-notification            controllers.StubController.cacheNotificationData
+POST        /cache-etmp-notification            @controllers.StubController.cacheNotificationData
 
-GET         /simulate-des-post/:ackRef          controllers.StubController.notifyBRN(ackRef)
+GET         /simulate-des-post/:ackRef          @controllers.StubController.notifyBRN(ackRef)
 
-GET         /wipe                               controllers.StubController.removeCachedNotifications()
+GET         /wipe                               @controllers.StubController.removeCachedNotifications()
 
-POST        /pay-as-you-earn                    controllers.StubController.submitPaye
+POST        /pay-as-you-earn                    @controllers.StubController.submitPaye
 
-POST        /value-added-tax                    controllers.StubController.submitVat
+POST        /value-added-tax                    @controllers.StubController.submitVat
 
-POST        /setup-next-des-response/:status    controllers.StubController.setupNextDESResponse(status: Int)
+POST        /setup-next-des-response/:status    @controllers.StubController.setupNextDESResponse(status: Int)

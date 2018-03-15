@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 package controllers
 
+import javax.inject.Inject
+
+import cats.instances.FutureInstances
+import config.Config
 import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
@@ -23,23 +27,19 @@ import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import services.NotificationService
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.microservice.controller.BaseController
-import cats.instances.FutureInstances
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-object StubController extends StubController {
+class StubControllerImpl @Inject()(val notificationService : NotificationService,
+                                   config: Config) extends StubController {
   def dateTime = DateTime.now(DateTimeZone.UTC)
-
-  val notificationService = NotificationService
-
-  val busRegNotification = baseUrl("business-registration-notification")
+  val busRegNotification = config.baseUrl("business-registration-notification")
 }
 
-trait StubController extends BaseController with ServicesConfig with FutureInstances {
+trait StubController extends BaseController with FutureInstances {
 
   def dateTime: DateTime
 
