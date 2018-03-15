@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package config
 
-import play.api.libs.json._
+import javax.inject.Inject
 
-import scala.language.implicitConversions
+import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.config.ServicesConfig
 
-case class SetupIVOutcome(journeyId: String, outcome: String)
+class ConfigImpl @Inject()(config: Configuration,
+                           environment: Environment) extends Config {
+  override protected def mode: Mode = environment.mode
 
-object SetupIVOutcome {
-
-  val mongoFormat: OFormat[SetupIVOutcome] = Json.format[SetupIVOutcome]
-
-  implicit def formatToOFormat(format: Format[SetupIVOutcome]): OFormat[SetupIVOutcome] = format.asInstanceOf[OFormat[SetupIVOutcome]]
+  override protected def runModeConfiguration: Configuration = config
 }
+
+trait Config extends ServicesConfig

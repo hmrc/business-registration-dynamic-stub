@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 import org.mockito.Matchers
+import play.api.libs.ws.WSClient
 import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
@@ -39,6 +40,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
       val username = "testUserName"
       val password = "testPassword"
       val desResponseRepository: DESResponseRepository = mockDesRespRepo
+      override val ws: WSClient = fakeApplication.injector.instanceOf[WSClient]
     }
   }
 
@@ -46,15 +48,6 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     val m = mock[WriteResult]
     when(m.hasErrors).thenReturn(fails)
     m
-  }
-
-  "NotificationService" should {
-    "use the correct variables" in {
-      NotificationService.etmpRepo shouldBe ETMPNotificationRepository()
-      NotificationService.busRegNotif shouldBe "http://localhost:9661/business-registration-notification"
-      NotificationService.username shouldBe "foo"
-      NotificationService.password shouldBe "bar"
-    }
   }
 
   "cacheNotification" should {

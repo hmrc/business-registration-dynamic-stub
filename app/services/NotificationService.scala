@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,38 @@
 
 package services
 
+import javax.inject.Inject
+
 import cats.data.OptionT
+import config.Config
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
-import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import mongo.{DESResponseRepo, DESResponseRepository, ETMPNotificationRepo, ETMPNotificationRepository}
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.{WS, WSAuthScheme, WSResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
-import play.api.Play.current
+import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import reactivemongo.api.commands.WriteResult
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
-object NotificationService extends NotificationService {
-  val etmpRepo = ETMPNotificationRepository()
+class NotificationServiceImpl @Inject()(etmpRepository : ETMPNotificationRepo,
+                                        DESResponseRepository: DESResponseRepo,
+                                        config: Config,
+                                        val ws: WSClient) extends NotificationService {
+
+  val etmpRepo : ETMPNotificationRepository = etmpRepository()
   val desResponseRepository: DESResponseRepository = DESResponseRepository()
-  val busRegNotif = s"${baseUrl("business-registration-notification")}/business-registration-notification"
-  val username = getString(s"$env.basicAuth.username")
-  val password = getString(s"$env.basicAuth.password")
+  val busRegNotif = s"${config.baseUrl("business-registration-notification")}/business-registration-notification"
+  val username = config.getString(s"${config.env}.basicAuth.username")
+  val password = config.getString(s"${config.env}.basicAuth.password")
 }
 
-trait NotificationService extends ServicesConfig {
+trait NotificationService {
 
   val etmpRepo : ETMPNotificationRepository
   val desResponseRepository: DESResponseRepository
 
+  val ws: WSClient
   val busRegNotif : String
 
   val username : String
@@ -69,7 +75,7 @@ trait NotificationService extends ServicesConfig {
   // $COVERAGE-OFF$
   def callBRN(ackRef : String, eTMPNotification: ETMPNotification) : Future[WSResponse] = {
     val json = Json.toJson(eTMPNotification)
-    WS.url(s"$busRegNotif/notification/$ackRef")
+    ws.url(s"$busRegNotif/notification/$ackRef")
       .withAuth(username, password, WSAuthScheme.BASIC)
       .withBody(json)
       .post(json)

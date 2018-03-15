@@ -15,7 +15,7 @@ private object AppDependencies {
   import play.sbt.PlayImport._
 
 
-  private val microserviceBootstrapVersion = "6.13.0"
+  private val bookstrapPlay25Version = "1.5.0"
   private val hmrcTestVersion = "2.3.0"
   private val scalaTestVersion = "2.2.6"
   private val pegdownVersion = "1.6.0"
@@ -23,7 +23,7 @@ private object AppDependencies {
   
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "bootstrap-play-25" % bookstrapPlay25Version,
     "uk.gov.hmrc" %% "play-reactivemongo" % playReactiveMongoVersion,
     "org.typelevel" %% "cats" % "0.9.0"
   )
