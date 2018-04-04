@@ -227,6 +227,16 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
       val result = controller.submitPaye()(FakeRequest())
       status(result) shouldBe ACCEPTED
     }
+    "return a 400 if status next des response is 400" in new Setup {
+      when(mockNotifService.fetchNextDesResponse)
+        .thenReturn(OptionT[Future, SetupDesResponse](Future.successful(Some(SetupDesResponse(400, None)))))
+
+      when(mockNotifService.resetDesResponse)
+        .thenReturn(Future.successful(true))
+
+      val result = controller.submitPaye()(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
+    }
   }
 
   "submitVat" should {
