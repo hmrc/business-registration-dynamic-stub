@@ -53,11 +53,7 @@ trait StubController extends BaseController with FutureInstances {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(desSubmission, _)) =>
-          notificationService.fetchNextDesResponse.semiflatMap { response =>
-            notificationService.resetDesResponse.map { _ =>
-              Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
-            }
-          }.getOrElse{
+        fetchDesResponse {
             Logger.debug(s"[Full DES Submission] [Success] - $desSubmission")
             Ok(Json.toJson(successDesResponse))
           }
@@ -108,9 +104,17 @@ trait StubController extends BaseController with FutureInstances {
 
   private[controllers] def generateAckRef: String = "SCRS01234567890"
 
+  private[controllers] def fetchDesResponse(default: => Result): Future[Result] = notificationService.fetchNextDesResponse.semiflatMap { response =>
+      notificationService.resetDesResponse.map { _ =>
+        Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
+      }
+    }.getOrElse{
+      default
+    }
 
-  val submitPaye = Action {
-    implicit request => Accepted
+  val submitPaye = Action.async {
+    implicit request =>
+      fetchDesResponse(Accepted)
   }
 
   val submitVat = Action {
