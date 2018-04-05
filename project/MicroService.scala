@@ -50,14 +50,17 @@ trait MicroService {
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(
-      Keys.fork in IntegrationTest := false,
+      fork                       in Test            := true,
+      fork                       in IntegrationTest := false,
+      parallelExecution          in IntegrationTest := false,
+      testGrouping               in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest)(base => Seq(base / "it")),
-      addTestReportOption(IntegrationTest, "int-test-reports"),
-      testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
-      parallelExecution in IntegrationTest := false)
+      addTestReportOption(IntegrationTest, "int-test-reports")
+    )
     .settings(
       resolvers += Resolver.bintrayRepo("hmrc", "releases"),
-      resolvers += Resolver.jcenterRepo
+      resolvers += Resolver.jcenterRepo,
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
     )
 
 }

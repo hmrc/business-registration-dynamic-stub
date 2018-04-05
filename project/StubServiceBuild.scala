@@ -25,7 +25,8 @@ private object AppDependencies {
     ws,
     "uk.gov.hmrc"   %% "bootstrap-play-25"  % bookstrapPlay25Version,
     "uk.gov.hmrc"   %% "play-reactivemongo" % playReactiveMongoVersion,
-    "org.typelevel" %% "cats"               % "0.9.0"
+    "org.typelevel" %% "cats"               % "0.9.0",
+    "org.scala-lang" % "scala-reflect"      % "2.11.11"
   )
 
   trait TestDependencies {
