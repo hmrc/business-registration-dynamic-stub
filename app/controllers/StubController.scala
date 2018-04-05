@@ -28,6 +28,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import services.NotificationService
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import macros.DynamicStub
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -126,4 +127,21 @@ trait StubController extends BaseController with FutureInstances {
       Logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
       Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
   }
+
+
+  val testMethodName = Action.async {
+    implicit request =>
+      Future.successful(Ok)
+  }
+
+//  val testMethodName = Action.async {
+//    implicit request =>
+//      notificationService.fetchNextDesResponse.semiflatMap { response =>
+//        notificationService.resetDesResponse.map { _ =>
+//          Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
+//        }
+//      }.getOrElse {
+//        Ok
+//      }
+//  }
 }

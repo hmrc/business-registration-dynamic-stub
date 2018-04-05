@@ -1,9 +1,10 @@
+
 import play.routes.compiler.StaticRoutesGenerator
+import play.sbt.PlayScala
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-
 
 trait MicroService {
 
@@ -15,7 +16,6 @@ trait MicroService {
   import uk.gov.hmrc.versioning.SbtGitVersioning
 
   import play.sbt.routes.RoutesKeys.routesGenerator
-
 
   val appName: String
 
@@ -33,9 +33,25 @@ trait MicroService {
       )
     }
 
-  lazy val microservice = Project(appName, file("."))
-    .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
-    .settings(playSettings : _*)
+  lazy val macros = Project("macros", file("macros"))
+    .enablePlugins(PlayScala, SbtDistributablesPlugin, SbtAutoBuildPlugin, SbtGitVersioning)
+    .settings(playSettings: _*)
+    .settings(scalaSettings: _*)
+    .settings(publishingSettings: _*)
+    .settings(defaultSettings(): _*)
+    .settings(
+      scalaVersion := "2.11.11",
+      resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+      resolvers += Resolver.jcenterRepo,
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+      libraryDependencies ++= appDependencies
+    )
+    .configs(IntegrationTest)
+    .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
+
+  lazy val microservice = Project(appName, file(".")).aggregate(macros).dependsOn(macros)
+    .enablePlugins(Seq(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
+    .settings(playSettings: _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
@@ -62,7 +78,6 @@ trait MicroService {
       resolvers += Resolver.jcenterRepo,
       addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
     )
-
 }
 
 private object TestPhases {

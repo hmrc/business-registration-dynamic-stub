@@ -280,4 +280,8 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
       result.status shouldBe OK
     }
   }
+
+  "test it" in new Setup {
+    controller.testMethodName(FakeRequest()) shouldBe ""
+  }
 }

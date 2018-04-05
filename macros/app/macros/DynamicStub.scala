@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
+package macros
+
 import scala.language.experimental.macros
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.reflect.macros.whitebox
 
-object DynamicMacro {
-  def impl(c: whitebox.Context)(annottees: c.Expr[Any]*): c.Expr[Unit] = {
+@compileTimeOnly("enable macro paradise to expand macro annotations")
+class DynamicStub extends StaticAnnotation {
+  def macroTransform(annottees: Any*): Any = macro DynamicStub.impl
+}
+
+object DynamicStub {
+  def impl(c: whitebox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
     val result: c.universe.Tree = {
       annottees.map(_.tree).toList match {
-        case tree :: Nil => q"""println($tree)"""
+        case q"$mods val $methodName: $returnType = Action.async { $request => ..$body }" :: Nil =>
+          q"""$mods val $methodName: $returnType = Action.async { $request =>
+             println(${methodName.toString()})
+             ..$body
+          }"""
+        case _ => c.abort(c.enclosingPosition, "Annotation @DynamicStub can be used only with Action.async")
       }
     }
-    c.Expr[Unit](result)
+    c.Expr[Any](result)
   }
-}
-
-@compileTimeOnly("enable macro paradise to expand macro annotations")
-class DynamicStub extends StaticAnnotation {
-  def macroTransform(annottees: Any*): Any = macro DynamicMacro.impl
 }
