@@ -117,8 +117,9 @@ trait StubController extends BaseController with FutureInstances {
       fetchDesResponse(Accepted)
   }
 
-  val submitVat = Action {
-    implicit request => Accepted
+  val submitVat = Action.async {
+    implicit request =>
+      fetchDesResponse(Accepted)
   }
 
   val topup = Action {
