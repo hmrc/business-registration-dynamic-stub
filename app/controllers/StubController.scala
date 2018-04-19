@@ -23,12 +23,12 @@ import config.Config
 import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Logger
+//import play.api.Logger
+import macros.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import services.NotificationService
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
-import macros.DynamicStub
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -128,20 +128,9 @@ trait StubController extends BaseController with FutureInstances {
       Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
   }
 
-
-  val testMethodName = Action.async {
+  def testMethodName = Action.async {
     implicit request =>
+      Logger.error("some test log", new Exception("ok"))
       Future.successful(Ok)
   }
-
-//  val testMethodName = Action.async {
-//    implicit request =>
-//      notificationService.fetchNextDesResponse.semiflatMap { response =>
-//        notificationService.resetDesResponse.map { _ =>
-//          Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
-//        }
-//      }.getOrElse {
-//        Ok
-//      }
-//  }
 }
