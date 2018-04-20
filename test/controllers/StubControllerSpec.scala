@@ -240,9 +240,23 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
   }
 
   "submitVat" should {
-    "return an accepted" in new Setup {
+    "return the default response (accepted) if a DES response has been setup" in new Setup {
+      when(mockNotifService.fetchNextDesResponse)
+        .thenReturn(OptionT(Future.successful(None: Option[SetupDesResponse])))
+      
       val result = controller.submitVat()(FakeRequest())
       status(result) shouldBe ACCEPTED
+    }
+
+    "return a bad request if a DES response has been setup to return a bad request" in new Setup {
+      when(mockNotifService.fetchNextDesResponse)
+        .thenReturn(OptionT[Future, SetupDesResponse](Future.successful(Some(SetupDesResponse(BAD_REQUEST, None)))))
+
+      when(mockNotifService.resetDesResponse)
+        .thenReturn(Future.successful(true))
+
+      val result = controller.submitPaye()(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
     }
   }
 
