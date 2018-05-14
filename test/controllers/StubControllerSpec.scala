@@ -21,7 +21,7 @@ import akka.stream.{ActorMaterializer, Materializer}
 import cats.data.OptionT
 import models._
 import org.joda.time.DateTime
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
@@ -243,7 +243,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     "return the default response (accepted) if a DES response has been setup" in new Setup {
       when(mockNotifService.fetchNextDesResponse)
         .thenReturn(OptionT(Future.successful(None: Option[SetupDesResponse])))
-      
+
       val result = controller.submitVat()(FakeRequest())
       status(result) shouldBe ACCEPTED
     }
