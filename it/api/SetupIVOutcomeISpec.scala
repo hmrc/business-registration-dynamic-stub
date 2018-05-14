@@ -34,7 +34,7 @@ class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec 
   class Setup extends MongoDbConnection {
     val ivOutcomeRepo = new IVOutcomeMongoRepository()(db)
 
-    ivOutcomeRepo.awaitDrop
+    ivOutcomeRepo.awaitDrop()
   }
 
   "POST /setup-iv-outcome" should {

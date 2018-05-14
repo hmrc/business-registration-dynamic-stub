@@ -17,7 +17,7 @@ private object AppDependencies {
 
   private val bookstrapPlay25Version    = "1.5.0"
   private val hmrcTestVersion           = "3.0.0"
-  private val scalaTestVersion          = "2.2.6"
+  private val scalaTestVersion          = "3.0.0"
   private val pegdownVersion            = "1.6.0"
   private val playReactiveMongoVersion  = "5.2.0"
   
@@ -42,7 +42,7 @@ private object AppDependencies {
         "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
         "uk.gov.hmrc"             %% "reactivemongo-test" % "2.0.0"             % scope,
         "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.0"             % scope,
-        "org.mockito"             % "mockito-all"         % "1.9.5"             % scope
+        "org.mockito"             % "mockito-all"         % "2.0.2-beta"        % scope
       )
     }.test
   }
