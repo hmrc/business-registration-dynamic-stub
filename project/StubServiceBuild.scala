@@ -5,7 +5,6 @@ object StubServiceBuild extends Build with MicroService {
   import scala.util.Properties.envOrElse
 
   val appName = "business-registration-dynamic-stub"
-  val appVersion = envOrElse("BUSINESS_REGISTRATION_DYNAMIC_STUB_VERSION", "999-SNAPSHOT")
 
   override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 }
@@ -15,7 +14,7 @@ private object AppDependencies {
   import play.sbt.PlayImport._
 
 
-  private val bookstrapPlay25Version    = "1.6.0"
+  private val bookstrapPlay25Version    = "1.7.0"
   private val hmrcTestVersion           = "3.0.0"
   private val scalaTestVersion          = "3.0.0"
   private val pegdownVersion            = "1.6.0"
