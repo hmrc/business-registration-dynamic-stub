@@ -14,8 +14,8 @@ private object AppDependencies {
   import play.sbt.PlayImport._
 
 
-  private val bookstrapPlay25Version    = "3.2.0"
-  private val hmrcTestVersion           = "3.0.0"
+  private val bookstrapPlay25Version    = "4.3.0"
+  private val hmrcTestVersion           = "3.3.0"
   private val scalaTestVersion          = "3.0.0"
   private val pegdownVersion            = "1.6.0"
   private val playReactiveMongoVersion  = "5.2.0"
