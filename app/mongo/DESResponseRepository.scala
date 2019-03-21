@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import reactivemongo.api.DB
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
+import reactivemongo.play.json.ImplicitBSONHandlers.{BSONDocumentWrites,JsObjectDocumentWriter}
+import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -38,7 +39,7 @@ class DESResponseRepo @Inject()(implicit val mongo: ReactiveMongoComponent) {
   def apply(): DESResponseMongoRepository = repository
 }
 
-trait DESResponseRepository extends Repository[SetupDesResponse, BSONObjectID]{
+trait DESResponseRepository extends ReactiveRepository[SetupDesResponse, BSONObjectID]{
   def storeNextDesResponse(response: SetupDesResponse): Future[WriteResult]
   def fetchNextDesResponse: OptionT[Future, SetupDesResponse]
   def resetDesResponse: Future[WriteResult]
@@ -57,6 +58,6 @@ class DESResponseMongoRepository(implicit mongo: () => DB)
   }
 
   override def resetDesResponse: Future[WriteResult] = {
-    collection.remove(Json.obj())
+    collection.delete().one(Json.obj())(global,JsObjectDocumentWriter)
   }
 }

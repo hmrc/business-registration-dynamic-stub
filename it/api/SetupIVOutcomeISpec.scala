@@ -18,11 +18,11 @@ package api
 
 import helpers.APIHelper
 import models.SetupIVOutcome
-import mongo.IVOutcomeMongoRepository
+import mongo.{IVOutcomeMongoRepository, IVOutcomeRepo}
 import play.api.Application
 import play.api.libs.json.{JsString, Json}
 import play.api.libs.ws.WSResponse
-import play.modules.reactivemongo.MongoDbConnection
+import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext
@@ -31,10 +31,12 @@ class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec 
 
   implicit val ex: ExecutionContext = implicitly[Application].actorSystem.dispatcher.prepare()
 
-  class Setup extends MongoDbConnection {
-    val ivOutcomeRepo = new IVOutcomeMongoRepository()(db)
+  class Setup {
+    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val ivOutcomeRepo = new IVOutcomeRepo()(rmc).apply()
 
-    ivOutcomeRepo.awaitDrop()
+    await(ivOutcomeRepo.drop)
+    await(ivOutcomeRepo.count) shouldBe 0
   }
 
   "POST /setup-iv-outcome" should {
