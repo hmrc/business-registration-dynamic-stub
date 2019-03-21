@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,18 @@
 package services
 
 import models.{CurlETMPNotification, ETMPNotification}
-import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import mongo.{DESResponseRepository, ETMPNotificationMongoRepository}
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.libs.ws.WSClient
-import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
 
 class NotificationServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
-  val mockRepo = mock[ETMPNotificationRepository]
+  val mockRepo = mock[ETMPNotificationMongoRepository]
   val mockDesRespRepo = mock[DESResponseRepository]
 
   class Setup {
@@ -44,24 +43,15 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     }
   }
 
-  def mockWriteResult(fails : Boolean = false) : WriteResult = {
-    val m = mock[WriteResult]
-    when(m.hasErrors).thenReturn(fails)
-    m
-  }
-
   "cacheNotification" should {
 
     val data = CurlETMPNotification(
       "aaa","bbb","ccc",Some("ddd"),"eee"
     )
 
-    val success = mockWriteResult()
-    val fail = mockWriteResult(true)
-
-    "return false" in new Setup {
+   "return false" in new Setup {
       when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
-        .thenReturn(Future.successful(success))
+        .thenReturn(Future.successful(false))
 
       val result = await(TestService.cacheNotification(data))
       result shouldBe false
@@ -69,7 +59,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
 
     "return true" in new Setup {
       when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
-        .thenReturn(Future.successful(fail))
+        .thenReturn(Future.successful(true))
 
       val result = await(TestService.cacheNotification(data))
       result shouldBe true

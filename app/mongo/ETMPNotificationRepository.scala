@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import reactivemongo.api.DB
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONObjectID, BSONString}
+import reactivemongo.play.json.ImplicitBSONHandlers.BSONDocumentWrites
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
+import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -33,18 +34,11 @@ import scala.concurrent.Future
 class ETMPNotificationRepo @Inject()(implicit val mongo: ReactiveMongoComponent) {
   private lazy val repository = new ETMPNotificationMongoRepository
 
-  def apply() : ETMPNotificationRepository = repository
-}
-
-trait ETMPNotificationRepository extends Repository[CurlETMPNotification, BSONObjectID]{
-  def cacheETMPNotification(notification: CurlETMPNotification) : Future[WriteResult]
-  def retrieveETMPNotification(ackRef : String) : Future[Option[ETMPNotification]]
-  def wipeETMPNotification : Future[String]
+  def apply() : ETMPNotificationMongoRepository = repository
 }
 
 class ETMPNotificationMongoRepository(implicit mongo: () => DB)
-  extends ReactiveRepository[CurlETMPNotification, BSONObjectID]("etmp-notif-store", mongo, CurlETMPNotification.format, ReactiveMongoFormats.objectIdFormats)
-    with ETMPNotificationRepository {
+  extends ReactiveRepository[CurlETMPNotification, BSONObjectID]("etmp-notif-store", mongo, CurlETMPNotification.format, ReactiveMongoFormats.objectIdFormats) {
 
   override def indexes: Seq[Index] = Seq(
     Index(
@@ -59,18 +53,22 @@ class ETMPNotificationMongoRepository(implicit mongo: () => DB)
     BSONDocument("ackRef" -> BSONString(ackRef))
   }
 
-  override def cacheETMPNotification(notification: CurlETMPNotification): Future[WriteResult] = {
-    collection.insert[CurlETMPNotification](notification)
+   def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] = {
+    collection.insert[CurlETMPNotification](notification) map {
+      case wr => false
+    } recover {
+      case _ => true
+    }
   }
 
-  override def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
+   def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
     collection.find(ackRefSelector(ackRef)).one[CurlETMPNotification] map {
       case Some(record) => Some(CurlETMPNotification.convertToETMPNotification(record))
       case None => None
     }
   }
 
-  override def wipeETMPNotification : Future[String] = {
+   def wipeETMPNotification : Future[String] = {
     collection.drop() map {
       _ => "Collection dropped"
     }

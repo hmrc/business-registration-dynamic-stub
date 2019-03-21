@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import javax.inject.Inject
 import cats.data.OptionT
 import config.Config
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
-import mongo.{DESResponseRepo, DESResponseRepository, ETMPNotificationRepo, ETMPNotificationRepository}
+import mongo.{DESResponseRepo, DESResponseRepository, ETMPNotificationMongoRepository, ETMPNotificationRepo}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import reactivemongo.api.commands.WriteResult
@@ -35,7 +35,7 @@ class NotificationServiceImpl @Inject()(etmpRepository : ETMPNotificationRepo,
                                         config: Config,
                                         val ws: WSClient) extends NotificationService {
 
-  val etmpRepo : ETMPNotificationRepository = etmpRepository()
+  val etmpRepo: ETMPNotificationMongoRepository = etmpRepository()
   val desResponseRepository: DESResponseRepository = DESResponseRepository()
   val busRegNotif = s"${config.baseUrl("business-registration-notification")}/business-registration-notification"
   val username = config.getString(s"${config.env}.basicAuth.username")
@@ -44,7 +44,7 @@ class NotificationServiceImpl @Inject()(etmpRepository : ETMPNotificationRepo,
 
 trait NotificationService {
 
-  val etmpRepo : ETMPNotificationRepository
+  val etmpRepo : ETMPNotificationMongoRepository
   val desResponseRepository: DESResponseRepository
 
   val ws: WSClient
@@ -54,9 +54,7 @@ trait NotificationService {
   val password : String
 
   def cacheNotification(curl : CurlETMPNotification) : Future[Boolean] = {
-    etmpRepo.cacheETMPNotification(curl) map {
-      _.hasErrors
-    }
+    etmpRepo.cacheETMPNotification(curl)
   }
 
   def getCachedNotification(ackRef : String) : Future[Option[ETMPNotification]] = {

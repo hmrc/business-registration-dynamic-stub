@@ -15,26 +15,33 @@
 */
 package mongo
 
+import helpers.APIHelper
 import models._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import play.api.Application
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.{BSONDocument, BSONString}
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ETMPNotificationRepositorySpec extends UnitSpec with MongoSpecSupport with BeforeAndAfterEach with ScalaFutures with Eventually with WithFakeApplication {
-
+class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoIntegrationSpec with BeforeAndAfterEach with ScalaFutures with Eventually {
   class Setup {
-    val repository = new ETMPNotificationMongoRepository()
+//    val repository = new ETMPNotificationMongoRepository()
+    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val repository = new ETMPNotificationRepo()(rmc).apply()
+
     await(repository.drop)
+    await(repository.count) shouldBe 0
     await(repository.ensureIndexes)
   }
 
-  def setupCollection(repo: ETMPNotificationRepository, ctRegistration: CurlETMPNotification): Future[WriteResult] = {
+  def setupCollection(repo: ETMPNotificationMongoRepository, ctRegistration: CurlETMPNotification): Future[WriteResult] = {
     repo.insert(ctRegistration)
   }
 
@@ -52,7 +59,7 @@ class ETMPNotificationRepositorySpec extends UnitSpec with MongoSpecSupport with
     "insert a document" in new Setup {
       val result = repository.cacheETMPNotification(data)
 
-      result.hasErrors shouldBe false
+      await(result) shouldBe false
     }
   }
 
@@ -62,8 +69,8 @@ class ETMPNotificationRepositorySpec extends UnitSpec with MongoSpecSupport with
     )
 
     "retrieve a document" in new Setup {
-      repository.cacheETMPNotification(data)
-      val result = repository.retrieveETMPNotification("aaa").get
+      await(repository.cacheETMPNotification(data))
+      val result = await(repository.retrieveETMPNotification("aaa")).get
 
       result shouldBe CurlETMPNotification.convertToETMPNotification(data)
     }
