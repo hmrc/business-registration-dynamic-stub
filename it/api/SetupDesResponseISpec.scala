@@ -35,7 +35,8 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
   class Setup extends MongoDbConnection {
     val desResponseRepo = new DESResponseMongoRepository()(db)
 
-    desResponseRepo.awaitDrop()
+    await(desResponseRepo.drop)
+    await(desResponseRepo.count) shouldBe 0
   }
 
   val submissionPath = "business-registration/corporation-tax"
