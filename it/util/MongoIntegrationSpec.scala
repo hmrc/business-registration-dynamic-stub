@@ -24,7 +24,6 @@ import scala.concurrent.ExecutionContext
 trait MongoIntegrationSpec extends UnitSpec {
 
   implicit class ReactiveRepositoryOps[T](repo: ReactiveRepository[T, _])(implicit ex: ExecutionContext){
-    def awaitDrop(): Unit =  await(repo.collection.drop())
     def awaitCount: Int = await(repo.count)
   }
 }
