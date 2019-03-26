@@ -93,6 +93,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
           companyActiveDate = Some(testDateTime.toString),
           hasCompanyTakenOverBusiness = false,
           companyMemberOfGroup = false,
+          groupDetails = None,
           "testCompanyName",
           crn = Some("crn-0123456789"),
           startDateOfFirstAccountingPeriod = Some("01/01/1980"),
@@ -119,6 +120,29 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
       val result = await(call(controller.submit(), request))
       status(result) shouldBe OK
       jsonBodyOf(result) shouldBe successResponse
+    }
+    "return 200 with a successful response with group details provided" in new Setup {
+      when(mockNotifService.fetchNextDesResponse)
+        .thenReturn(OptionT(Future.successful(None: Option[SetupDesResponse])))
+      val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission.copy(
+        registration = fullDesSubmission.registration.copy(
+          corporationTax = fullDesSubmission.registration.corporationTax.copy(
+            companyMemberOfGroup = true,
+            groupDetails = Some(GroupDetails("fooBar",BusinessAddress("1","2",None,None,None,None)))))
+      )))
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe OK
+      jsonBodyOf(result) shouldBe successResponse
+
+    }
+    "return a 400 if companyMemberOfGroup is true and groupDetails is not provided" in new Setup {
+      val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission.copy(
+        registration = fullDesSubmission.registration.copy(
+          corporationTax = fullDesSubmission.registration.corporationTax.copy(companyMemberOfGroup = true))
+      )))
+      val result = await(call(controller.submit(), request))
+      status(result) shouldBe BAD_REQUEST
+      jsonBodyOf(result) shouldBe invalidJsonResponse
     }
 
     "return a 400 with a reason in json when an invalid des submission fails validation" in new Setup {

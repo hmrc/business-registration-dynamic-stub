@@ -54,11 +54,15 @@ trait StubController extends BaseController with FutureInstances {
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(desSubmission, _)) =>
         fetchDesResponse {
-            Logger.debug(s"[Full DES Submission] [Success] - $desSubmission")
+            Logger.info(s"[DES Submission] [Success] - $desSubmission")
             Ok(Json.toJson(successDesResponse))
           }
-        case Success(JsError(errors)) => Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
-        case Failure(e) => Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
+        case Success(JsError(errors)) =>
+          Logger.warn("Errors from submission" + errors)
+          Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
+        case Failure(e) =>
+          Logger.warn("Exception thrown" + e)
+          Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
   }
 

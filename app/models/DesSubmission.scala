@@ -17,12 +17,16 @@
 package models
 
 import org.joda.time.DateTime
+import play.api.Logger
 import play.api.libs.json.{Format, JsPath, Json}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.libs.json.Writes._
 
-
+case class GroupDetails(
+                         parentCompanyName: String,
+                         groupAddress: BusinessAddress
+                       )
 case class BusinessAddress(
                           line1 : String,
                           line2 : String,
@@ -55,11 +59,11 @@ case class Metadata(
                    declareAccurateAndComplete: Boolean
                    )
 
-case class CorporationTax(
-                         companyOfficeNumber : String,
+case class CorporationTax(companyOfficeNumber : String,
                          companyActiveDate: Option[String],
                          hasCompanyTakenOverBusiness: Boolean,
                          companyMemberOfGroup : Boolean,
+                         groupDetails: Option[GroupDetails],
                          companiesHouseCompanyName : String,
                          crn : Option[String],
                          startDateOfFirstAccountingPeriod : Option[String],
@@ -80,11 +84,27 @@ case class FullDesSubmission(acknowledgementReference : String,
                              registration : Registration)
 
 object FullDesSubmission {
+  private val specificCTValidationAccordingToDesSchema = new Reads[JsValue] {
+    override def reads(json: JsValue): JsResult[JsValue] = {
+      val groupBoolean = (json \ "companyMemberOfGroup").validate[Boolean].get
+      val groupDetails = (json \ "groupDetails").validateOpt[JsObject].get
+      if(groupDetails.isEmpty && groupBoolean) {
+        Logger.error("Group Details are missing when companyMemberOfGroup is true")
+        JsError("Group Details are missing when companyMemberOfGroup is true")
+      }
+      else {
+        JsSuccess(json)
+      }
+    }
+  }
 
   implicit val bcdReads = Json.format[BusinessContactDetails]
   implicit val bcnReads = Json.format[BusinessContactName]
   implicit val baReads = Json.format[BusinessAddress]
-  implicit val cTReads = Json.format[CorporationTax]
+  implicit val groupDetailsFormats = Json.format[GroupDetails]
+  implicit val cTReadsWithSpecificDesSchemaValidation: Format[CorporationTax] = {
+    Format(specificCTValidationAccordingToDesSchema.andThen(Json.reads[CorporationTax]),Json.writes[CorporationTax])
+  }
   implicit val metadataReads: Format[Metadata] = (
     (__ \ "sessionId").format[String] and
     (__ \ "credentialId").format[String] and
