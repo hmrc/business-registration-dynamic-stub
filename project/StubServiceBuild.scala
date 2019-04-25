@@ -14,11 +14,11 @@ object StubServiceBuild extends Build with MicroService {
   import play.sbt.PlayImport._
 
 
-  private val bookstrapPlay25Version    = "4.9.0"
-  private val hmrcTestVersion           = "3.6.0-play-25"
+  private val bookstrapPlay25Version    = "4.11.0"
+  private val hmrcTestVersion           = "3.8.0-play-25"
   private val scalaTestVersion          = "3.0.0"
   private val pegdownVersion            = "1.6.0"
-  private val simpleReactivemongoVersion  = "7.16.0-play-25"
+  private val simpleReactivemongoVersion  = "7.19.0-play-25"
   
   val compile = Seq(
     ws,
@@ -39,7 +39,7 @@ object StubServiceBuild extends Build with MicroService {
         "org.scalatest"           %% "scalatest"          % scalaTestVersion    % scope,
         "org.pegdown"             % "pegdown"             % pegdownVersion      % scope,
         "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
-        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.9.0-play-25"     % scope,
+        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.13.0-play-25"     % scope,
         "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.0"             % scope,
         "org.mockito"             % "mockito-all"         % "2.0.2-beta"        % scope
       )
@@ -56,7 +56,7 @@ object StubServiceBuild extends Build with MicroService {
         "org.scalatest"           %% "scalatest"          % "3.0.0"             % scope,
         "org.pegdown"             % "pegdown"             % "1.5.0"             % scope,
         "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
-        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.10.0-play-25"     % scope,
+        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.13.0-play-25"     % scope,
         "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.0"             % scope,
         "com.github.tomakehurst"  % "wiremock"            % "2.6.0"             % scope
       )
