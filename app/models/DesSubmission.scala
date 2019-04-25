@@ -25,6 +25,8 @@ import play.api.libs.json.Writes._
 
 case class GroupDetails(
                          parentCompanyName: String,
+                         companyGroupName: Option[String],
+                         parentUTR: Option[String],
                          groupAddress: BusinessAddress
                        )
 case class BusinessAddress(

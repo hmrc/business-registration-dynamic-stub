@@ -128,7 +128,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(
             companyMemberOfGroup = true,
-            groupDetails = Some(GroupDetails("fooBar",BusinessAddress("1","2",None,None,None,None)))))
+            groupDetails = Some(GroupDetails("fooBar",None,Some("1234567890"),BusinessAddress("1","2",None,None,None,None)))))
       )))
       val result = await(call(controller.submit(), request))
       status(result) shouldBe OK
