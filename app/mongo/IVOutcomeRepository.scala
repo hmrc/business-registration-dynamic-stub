@@ -47,10 +47,12 @@ class IVOutcomeMongoRepository(implicit mongo: () => DB)
     with IVOutcomeRepository {
 
   override def upsertIVOutcome(data: SetupIVOutcome): Future[WriteResult] = {
-    collection.update(BSONDocument("journeyId" -> BSONString(data.journeyId)), data, upsert = true)(BSONDocumentWrites, domainFormatImplicit, global)
+    collection
+      .update(ordered = true)
+      .one(BSONDocument("journeyId" -> data.journeyId), data, upsert = true)(global, BSONDocumentWrites, domainFormatImplicit)
   }
 
   override def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = {
-    OptionT(collection.find(BSONDocument("journeyId" -> journeyId)).one[SetupIVOutcome])
+    OptionT(collection.find(BSONDocument("journeyId" -> journeyId), projection = None).one[SetupIVOutcome])
   }
 }

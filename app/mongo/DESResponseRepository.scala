@@ -32,7 +32,6 @@ import uk.gov.hmrc.mongo.ReactiveRepository
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-
 class DESResponseRepo @Inject()(implicit val mongo: ReactiveMongoComponent) {
   private lazy val repository = new DESResponseMongoRepository
 
@@ -50,11 +49,14 @@ class DESResponseMongoRepository(implicit mongo: () => DB)
     with DESResponseRepository {
 
   override def storeNextDesResponse(response: SetupDesResponse): Future[WriteResult] = {
-    collection.update(BSONDocument(), response, upsert = true)(BSONDocumentWrites, domainFormatImplicit, global)
+    collection
+      .update(ordered = true)
+      .one(BSONDocument(), response, upsert = true)(global, BSONDocumentWrites, domainFormatImplicit)
   }
 
   override def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = {
-    OptionT(collection.find(BSONDocument()).one[SetupDesResponse])
+    OptionT(collection.find(BSONDocument(), projection = None)(BSONDocumentWrites, JsObjectDocumentWriter)
+      .one[SetupDesResponse](domainFormatImplicit, global))
   }
 
   override def resetDesResponse: Future[WriteResult] = {
