@@ -54,22 +54,22 @@ class ETMPNotificationMongoRepository(implicit mongo: () => DB)
   }
 
    def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] = {
-    collection.insert[CurlETMPNotification](notification) map {
-      case wr => false
-    } recover {
-      case _ => true
-    }
-  }
+     collection.insert(ordered = true).one(notification) map {
+       _ => false
+     } recover {
+       case _ => true
+     }
+   }
 
    def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
-    collection.find(ackRefSelector(ackRef)).one[CurlETMPNotification] map {
+    collection.find(ackRefSelector(ackRef), projection = None).one[CurlETMPNotification] map {
       case Some(record) => Some(CurlETMPNotification.convertToETMPNotification(record))
-      case None => None
+      case None         => None
     }
   }
 
    def wipeETMPNotification : Future[String] = {
-    collection.drop() map {
+    collection.drop(failIfNotFound = false) map {
       _ => "Collection dropped"
     }
   }

@@ -14,17 +14,17 @@ object StubServiceBuild extends Build with MicroService {
   import play.sbt.PlayImport._
 
 
-  private val bookstrapPlay25Version    = "4.11.0"
-  private val hmrcTestVersion           = "3.8.0-play-25"
-  private val scalaTestVersion          = "3.0.0"
-  private val pegdownVersion            = "1.6.0"
+  private val bookstrapPlay25Version      = "4.12.0"
+  private val hmrcTestVersion             = "3.8.0-play-25"
+  private val scalaTestVersion            = "3.0.0"
+  private val pegdownVersion              = "1.6.0"
   private val simpleReactivemongoVersion  = "7.19.0-play-25"
   
   val compile = Seq(
     ws,
-    "uk.gov.hmrc"   %% "bootstrap-play-25"  % bookstrapPlay25Version,
-    "uk.gov.hmrc" %% "simple-reactivemongo"   % simpleReactivemongoVersion,
-    "org.typelevel" %% "cats"               % "0.9.0"
+    "uk.gov.hmrc"   %% "bootstrap-play-25"    % bookstrapPlay25Version,
+    "uk.gov.hmrc"   %% "simple-reactivemongo" % simpleReactivemongoVersion,
+    "org.typelevel" %% "cats"                 % "0.9.0"
   )
 
   trait TestDependencies {
@@ -37,11 +37,11 @@ object StubServiceBuild extends Build with MicroService {
       override lazy val test = Seq(
         "uk.gov.hmrc"             %% "hmrctest"           % hmrcTestVersion     % scope,
         "org.scalatest"           %% "scalatest"          % scalaTestVersion    % scope,
-        "org.pegdown"             % "pegdown"             % pegdownVersion      % scope,
+        "org.pegdown"             %  "pegdown"            % pegdownVersion      % scope,
         "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
-        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.13.0-play-25"     % scope,
-        "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.0"             % scope,
-        "org.mockito"             % "mockito-all"         % "2.0.2-beta"        % scope
+        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.14.0-play-25"    % scope,
+        "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.1"             % scope,
+        "org.mockito"             %  "mockito-all"        % "2.0.2-beta"        % scope
       )
     }.test
   }
@@ -53,12 +53,12 @@ object StubServiceBuild extends Build with MicroService {
 
       override lazy val test = Seq(
         "uk.gov.hmrc"             %% "hmrctest"           % hmrcTestVersion     % scope,
-        "org.scalatest"           %% "scalatest"          % "3.0.0"             % scope,
-        "org.pegdown"             % "pegdown"             % "1.5.0"             % scope,
+        "org.scalatest"           %% "scalatest"          % "3.0.7"             % scope,
+        "org.pegdown"             %  "pegdown"            % "1.5.0"             % scope,
         "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
-        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.13.0-play-25"     % scope,
-        "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.0"             % scope,
-        "com.github.tomakehurst"  % "wiremock"            % "2.6.0"             % scope
+        "uk.gov.hmrc"             %% "reactivemongo-test" % "4.14.0-play-25"    % scope,
+        "org.scalatestplus.play"  %% "scalatestplus-play" % "2.0.1"             % scope,
+        "com.github.tomakehurst"  %  "wiremock"           % "2.23.2"            % scope
       )
     }.test
   }
