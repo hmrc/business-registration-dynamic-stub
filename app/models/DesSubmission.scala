@@ -66,6 +66,7 @@ case class CorporationTax(companyOfficeNumber : String,
                          hasCompanyTakenOverBusiness: Boolean,
                          companyMemberOfGroup : Boolean,
                          groupDetails: Option[GroupDetails],
+                         businessTakeOverDetails: Option[TakeOverDetails],
                          companiesHouseCompanyName : String,
                          crn : Option[String],
                          startDateOfFirstAccountingPeriod : Option[String],
@@ -77,6 +78,16 @@ case class CorporationTax(companyOfficeNumber : String,
                          businessContactDetails : BusinessContactDetails
                         )
 
+case class TakeOverDetails(
+                           businessNameLine1: String,
+                           businessNameLine2: Option[String],
+                           businessEntity: Option[String],
+                           businessTakeOverCRN: Option[String],
+                           businessTakeOverAddress: BusinessAddress,
+                           prevOwnersName: String,
+                           prevOwnerAddress: BusinessAddress
+                          )
+
 case class Registration(
                        metadata: Metadata,
                        corporationTax: CorporationTax
@@ -86,7 +97,21 @@ case class FullDesSubmission(acknowledgementReference : String,
                              registration : Registration)
 
 object FullDesSubmission {
-  private val specificCTValidationAccordingToDesSchema = new Reads[JsValue] {
+  private val specificCTTakeOverValidation = new Reads[JsValue] {
+    override def reads(json: JsValue): JsResult[JsValue] = {
+      val takeOverBoolean = (json \ "hasCompanyTakenOverBusiness").validate[Boolean].get
+      val takeOverDetails = (json \ "businessTakeOverDetails").validateOpt[JsObject].get
+      if(takeOverDetails.isEmpty && takeOverBoolean) {
+        Logger.error("Take Over Details are missing when hasCompanyTakenOverBusiness is true")
+        JsError("Take Over Details are missing when hasCompanyTakenOverBusiness is true")
+      }
+      else {
+        JsSuccess(json)
+      }
+    }
+  }
+
+  private val specificCTGroupValidationAccordingToDesSchema = new Reads[JsValue] {
     override def reads(json: JsValue): JsResult[JsValue] = {
       val groupBoolean = (json \ "companyMemberOfGroup").validate[Boolean].get
       val groupDetails = (json \ "groupDetails").validateOpt[JsObject].get
@@ -104,8 +129,9 @@ object FullDesSubmission {
   implicit val bcnReads = Json.format[BusinessContactName]
   implicit val baReads = Json.format[BusinessAddress]
   implicit val groupDetailsFormats = Json.format[GroupDetails]
+  implicit val takeOverDetailsFormat = Json.format[TakeOverDetails]
   implicit val cTReadsWithSpecificDesSchemaValidation: Format[CorporationTax] = {
-    Format(specificCTValidationAccordingToDesSchema.andThen(Json.reads[CorporationTax]),Json.writes[CorporationTax])
+    Format(specificCTTakeOverValidation andThen specificCTGroupValidationAccordingToDesSchema andThen Json.reads[CorporationTax] ,Json.writes[CorporationTax])
   }
   implicit val metadataReads: Format[Metadata] = (
     (__ \ "sessionId").format[String] and
