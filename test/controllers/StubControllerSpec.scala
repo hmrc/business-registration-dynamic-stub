@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,12 +130,12 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(
             hasCompanyTakenOverBusiness = true,
-            businessTakeOverDetails = Some(TakeOverDetails(
+            businessTakeOverDetails = Some(TakeoverDetails(
               businessNameLine1 = "businessNameLine1",
               businessNameLine2 = Some("businessNameLine2"),
               businessEntity = Some("Business Entity"),
-              businessTakeOverCRN = Some("C1234567"),
-              businessTakeOverAddress = BusinessAddress("line1", "line2", None, None, None, None),
+              businessTakeoverCRN = Some("C1234567"),
+              businessTakeoverAddress = BusinessAddress("line1", "line2", None, None, None, None),
               prevOwnersName = "Joe Bloggs",
               prevOwnerAddress = BusinessAddress("line1", "line2", None, None, None, None)
             ))
@@ -148,7 +148,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
 
     }
 
-    "return a 400 if businessTakeOverDetails is true and businessTakeOverDetails is not provided" in new Setup {
+    "return a 400 if businessTakeoverDetails is true and businessTakeoverDetails is not provided" in new Setup {
       val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission.copy(
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(hasCompanyTakenOverBusiness = true))
