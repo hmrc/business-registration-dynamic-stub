@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,28 +62,28 @@ case class Metadata(
                    )
 
 case class CorporationTax(companyOfficeNumber : String,
-                         companyActiveDate: Option[String],
-                         hasCompanyTakenOverBusiness: Boolean,
-                         companyMemberOfGroup : Boolean,
-                         groupDetails: Option[GroupDetails],
-                         businessTakeOverDetails: Option[TakeOverDetails],
-                         companiesHouseCompanyName : String,
-                         crn : Option[String],
-                         startDateOfFirstAccountingPeriod : Option[String],
-                         intendedAccountsPreparationDate : Option[String],
-                         returnsOnCT61 : Boolean,
-                         companyACharity : Boolean,
-                         businessAddress : Option[BusinessAddress],
-                         businessContactName : Option[BusinessContactName],
-                         businessContactDetails : BusinessContactDetails
+                          companyActiveDate: Option[String],
+                          hasCompanyTakenOverBusiness: Boolean,
+                          companyMemberOfGroup : Boolean,
+                          groupDetails: Option[GroupDetails],
+                          businessTakeOverDetails: Option[TakeoverDetails],
+                          companiesHouseCompanyName : String,
+                          crn : Option[String],
+                          startDateOfFirstAccountingPeriod : Option[String],
+                          intendedAccountsPreparationDate : Option[String],
+                          returnsOnCT61 : Boolean,
+                          companyACharity : Boolean,
+                          businessAddress : Option[BusinessAddress],
+                          businessContactName : Option[BusinessContactName],
+                          businessContactDetails : BusinessContactDetails
                         )
 
-case class TakeOverDetails(
+case class TakeoverDetails(
                            businessNameLine1: String,
                            businessNameLine2: Option[String],
                            businessEntity: Option[String],
-                           businessTakeOverCRN: Option[String],
-                           businessTakeOverAddress: BusinessAddress,
+                           businessTakeoverCRN: Option[String],
+                           businessTakeoverAddress: BusinessAddress,
                            prevOwnersName: String,
                            prevOwnerAddress: BusinessAddress
                           )
@@ -97,7 +97,7 @@ case class FullDesSubmission(acknowledgementReference : String,
                              registration : Registration)
 
 object FullDesSubmission {
-  private val specificCTTakeOverValidation = new Reads[JsValue] {
+  private val specificCTTakeoverValidation = new Reads[JsValue] {
     override def reads(json: JsValue): JsResult[JsValue] = {
       val takeOverBoolean = (json \ "hasCompanyTakenOverBusiness").validate[Boolean].get
       val takeOverDetails = (json \ "businessTakeOverDetails").validateOpt[JsObject].get
@@ -129,9 +129,9 @@ object FullDesSubmission {
   implicit val bcnReads = Json.format[BusinessContactName]
   implicit val baReads = Json.format[BusinessAddress]
   implicit val groupDetailsFormats = Json.format[GroupDetails]
-  implicit val takeOverDetailsFormat = Json.format[TakeOverDetails]
+  implicit val takeOverDetailsFormat = Json.format[TakeoverDetails]
   implicit val cTReadsWithSpecificDesSchemaValidation: Format[CorporationTax] = {
-    Format(specificCTTakeOverValidation andThen specificCTGroupValidationAccordingToDesSchema andThen Json.reads[CorporationTax] ,Json.writes[CorporationTax])
+    Format(specificCTTakeoverValidation andThen specificCTGroupValidationAccordingToDesSchema andThen Json.reads[CorporationTax] ,Json.writes[CorporationTax])
   }
   implicit val metadataReads: Format[Metadata] = (
     (__ \ "sessionId").format[String] and
