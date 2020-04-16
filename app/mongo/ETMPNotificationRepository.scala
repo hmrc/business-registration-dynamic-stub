@@ -16,29 +16,24 @@
 
 package mongo
 
-import javax.inject.Inject
-
+import javax.inject.{Inject, Singleton}
 import models.{CurlETMPNotification, ETMPNotification}
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.DB
-import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONObjectID, BSONString}
 import reactivemongo.play.json.ImplicitBSONHandlers.BSONDocumentWrites
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ETMPNotificationRepo @Inject()(implicit val mongo: ReactiveMongoComponent) {
-  private lazy val repository = new ETMPNotificationMongoRepository
-
-  def apply() : ETMPNotificationMongoRepository = repository
-}
-
-class ETMPNotificationMongoRepository(implicit mongo: () => DB)
-  extends ReactiveRepository[CurlETMPNotification, BSONObjectID]("etmp-notif-store", mongo, CurlETMPNotification.format, ReactiveMongoFormats.objectIdFormats) {
+@Singleton
+class ETMPNotificationRepository @Inject()(mongo: ReactiveMongoComponent) extends ReactiveRepository[CurlETMPNotification, BSONObjectID](
+  "etmp-notif-store",
+  mongo.mongoConnector.db,
+  CurlETMPNotification.format,
+  ReactiveMongoFormats.objectIdFormats) {
 
   override def indexes: Seq[Index] = Seq(
     Index(
@@ -49,26 +44,26 @@ class ETMPNotificationMongoRepository(implicit mongo: () => DB)
     )
   )
 
-  def ackRefSelector(ackRef : String) : BSONDocument = {
+  def ackRefSelector(ackRef: String): BSONDocument = {
     BSONDocument("ackRef" -> BSONString(ackRef))
   }
 
-   def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] = {
-     collection.insert(ordered = true).one(notification) map {
-       _ => false
-     } recover {
-       case _ => true
-     }
-   }
-
-   def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
-    collection.find(ackRefSelector(ackRef), projection = None).one[CurlETMPNotification] map {
-      case Some(record) => Some(CurlETMPNotification.convertToETMPNotification(record))
-      case None         => None
+  def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] = {
+    collection.insert(ordered = true).one(notification) map {
+      _ => false
+    } recover {
+      case _ => true
     }
   }
 
-   def wipeETMPNotification : Future[String] = {
+  def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
+    collection.find(ackRefSelector(ackRef), projection = None).one[CurlETMPNotification] map {
+      case Some(record) => Some(CurlETMPNotification.convertToETMPNotification(record))
+      case None => None
+    }
+  }
+
+  def wipeETMPNotification: Future[String] = {
     collection.drop(failIfNotFound = false) map {
       _ => "Collection dropped"
     }

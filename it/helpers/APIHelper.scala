@@ -16,22 +16,21 @@
 
 package helpers
 
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.JsValue
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import play.api.mvc.Results.EmptyContent
+import play.api.libs.ws.{EmptyBody, WSClient, WSRequest, WSResponse}
 
 import scala.concurrent.Future
 
 trait APIHelper {
-  expects: OneServerPerSuite =>
+  expects: GuiceOneServerPerSuite =>
 
   val ws: WSClient = app.injector.instanceOf[WSClient]
 
   private def client(path: String): WSRequest = ws.url(s"http://localhost:$port/$path").withFollowRedirects(false)
 
   def wsPost(path: String, body: Option[JsValue] = None): Future[WSResponse] = {
-    body.fold(client(path).post(EmptyContent()))(json => client(path).post(json))
+    body.fold(client(path).post(EmptyBody))(json => client(path).post(json))
   }
 
   def wsGet(path: String): Future[WSResponse] = client(path).get

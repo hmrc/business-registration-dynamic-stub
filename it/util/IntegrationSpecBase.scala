@@ -16,7 +16,7 @@
 
 package util
 
-import org.scalatestplus.play.OneServerPerSuite
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, WordSpec}
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
-trait IntegrationSpecBase extends UnitSpec with OneServerPerSuite
+trait IntegrationSpecBase extends WordSpec with Matchers with GuiceOneServerPerSuite

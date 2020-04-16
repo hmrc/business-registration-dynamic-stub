@@ -16,10 +16,8 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import cats.instances.FutureInstances
-import config.Config
+import javax.inject.{Inject, Singleton}
 import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
@@ -27,33 +25,30 @@ import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import services.NotificationService
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class StubControllerImpl @Inject()(val notificationService : NotificationService,
-                                   config: Config) extends StubController {
+@Singleton
+class StubController @Inject()(notificationService: NotificationService,
+                               config: ServicesConfig,
+                               cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
   def dateTime = DateTime.now(DateTimeZone.UTC)
+
   val busRegNotification = config.baseUrl("business-registration-notification")
-}
-
-trait StubController extends BaseController with FutureInstances {
-
-  def dateTime: DateTime
-
-  val notificationService : NotificationService
 
   private lazy val malformedJsonResponse = DesFailureResponse("Invalid JSON message received")
   private lazy val invalidJsonResponse = DesFailureResponse("Your submission contains one or more errors")
   private lazy val successDesResponse = DesSuccessResponse(generateTimestamp, generateAckRef)
 
-  val submit: Action[JsValue] = Action.async(BodyParsers.parse.json) {
+  val submit: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(desSubmission, _)) =>
-        fetchDesResponse {
+          fetchDesResponse {
             Logger.info(s"[DES Submission] [Success] - $desSubmission")
             Ok(Json.toJson(successDesResponse))
           }
@@ -66,12 +61,12 @@ trait StubController extends BaseController with FutureInstances {
       }
   }
 
-  def setupNextDESResponse(status: Int): Action[AnyContent] = Action.async(BodyParsers.parse.anyContent) {
+  def setupNextDESResponse(status: Int): Action[AnyContent] = Action.async(parse.anyContent) {
     implicit request =>
       notificationService.setupNextDESResponse(status, request.body.asJson) map (_ => Ok)
   }
 
-  def cacheNotificationData : Action[JsValue] = Action.async(parse.json) {
+  def cacheNotificationData: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       withJsonBody[CurlETMPNotification] {
         etmp =>
@@ -82,7 +77,7 @@ trait StubController extends BaseController with FutureInstances {
       }
   }
 
-  def notifyBRN(ackRef : String) : Action[AnyContent] = Action.async {
+  def notifyBRN(ackRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.getCachedNotification(ackRef) flatMap {
         case Some(record) =>
@@ -94,14 +89,14 @@ trait StubController extends BaseController with FutureInstances {
       }
   }
 
-  def removeCachedNotifications() : Action[AnyContent] = Action.async {
+  def removeCachedNotifications(): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService.destroyCachedNotifications map {
         resp => Ok(Json.obj("status" -> resp))
       }
   }
 
-  private[controllers] def generateTimestamp : String = {
+  private[controllers] def generateTimestamp: String = {
     val dT = ISODateTimeFormat.dateTime()
     dT.print(dateTime)
   }
@@ -109,12 +104,12 @@ trait StubController extends BaseController with FutureInstances {
   private[controllers] def generateAckRef: String = "SCRS01234567890"
 
   private[controllers] def fetchDesResponse(default: => Result): Future[Result] = notificationService.fetchNextDesResponse.semiflatMap { response =>
-      notificationService.resetDesResponse.map { _ =>
-        Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
-      }
-    }.getOrElse{
-      default
+    notificationService.resetDesResponse.map { _ =>
+      Status(response.status)(Json.toJson(response)(SetupDesResponse.responseWrites))
     }
+  }.getOrElse {
+    default
+  }
 
   val submitPaye = Action.async {
     implicit request =>

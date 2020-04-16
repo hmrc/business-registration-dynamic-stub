@@ -16,26 +16,21 @@
 
 package services
 
-import javax.inject.Inject
-
 import cats.data.OptionT
+import javax.inject.{Inject, Singleton}
 import models.SetupIVOutcome
-import mongo.{IVOutcomeRepo, IVOutcomeRepository}
+import mongo.IVOutcomeRepository
 import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
 
-class IVServiceImpl @Inject()(val ivOutcomeRepo: IVOutcomeRepo) extends IVService {
-  override val ivOutcomeRepository: IVOutcomeRepository = ivOutcomeRepo()
-}
-
-trait IVService {
-  val ivOutcomeRepository: IVOutcomeRepository
+@Singleton
+class IVService @Inject()(ivOutcomeRepo: IVOutcomeRepository) {
 
   def setupIVOutcome(journeyId: String, outcome: String): Future[WriteResult] = {
     val desResponse = SetupIVOutcome(journeyId, outcome)
-    ivOutcomeRepository.upsertIVOutcome(desResponse)
+    ivOutcomeRepo.upsertIVOutcome(desResponse)
   }
 
-  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = ivOutcomeRepository.fetchIVOutcome(journeyId)
+  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = ivOutcomeRepo.fetchIVOutcome(journeyId)
 }

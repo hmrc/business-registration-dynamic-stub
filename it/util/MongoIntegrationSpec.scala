@@ -16,14 +16,16 @@
 
 package util
 
-import uk.gov.hmrc.mongo.{MongoSpecSupport, ReactiveRepository}
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, WordSpec}
+import play.api.test.Helpers._
+import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext
 
-trait MongoIntegrationSpec extends UnitSpec {
+trait MongoIntegrationSpec extends WordSpec with Matchers {
 
-  implicit class ReactiveRepositoryOps[T](repo: ReactiveRepository[T, _])(implicit ex: ExecutionContext){
+  implicit class ReactiveRepositoryOps[T](repo: ReactiveRepository[T, _])(implicit ex: ExecutionContext) {
     def awaitCount: Int = await(repo.count)
   }
+
 }

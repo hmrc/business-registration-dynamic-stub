@@ -16,41 +16,45 @@
 
 package services
 
+import mocks.{MockConfig, MockRunMode}
 import models.{CurlETMPNotification, ETMPNotification}
-import mongo.{DESResponseRepository, ETMPNotificationMongoRepository}
-import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.scalatest.{Matchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.ws.WSClient
+import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class NotificationServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class NotificationServiceSpec extends WordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockRunMode with MockConfig {
 
-  val mockRepo = mock[ETMPNotificationMongoRepository]
+  val mockRepo = mock[ETMPNotificationRepository]
   val mockDesRespRepo = mock[DESResponseRepository]
+  val mockWs: WSClient = app.injector.instanceOf[WSClient]
 
   class Setup {
-    object TestService extends NotificationService {
-      val etmpRepo = mockRepo
-      val busRegNotif = "/testUrl/"
 
-      val username = "testUserName"
-      val password = "testPassword"
-      val desResponseRepository: DESResponseRepository = mockDesRespRepo
-      override val ws: WSClient = fakeApplication.injector.instanceOf[WSClient]
+    object TestService extends NotificationService(mockRepo, mockDesRespRepo, mockConfig, mockRunMode, mockWs) {
+
+      override val busRegNotif = "/testUrl/"
+      override val username = "testUserName"
+      override val password = "testPassword"
+
     }
+
   }
 
   "cacheNotification" should {
 
     val data = CurlETMPNotification(
-      "aaa","bbb","ccc",Some("ddd"),"eee"
+      "aaa", "bbb", "ccc", Some("ddd"), "eee"
     )
 
-   "return false" in new Setup {
-      when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
+    "return false" in new Setup {
+      when(mockRepo.cacheETMPNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(false))
 
       val result = await(TestService.cacheNotification(data))
@@ -58,7 +62,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     }
 
     "return true" in new Setup {
-      when(mockRepo.cacheETMPNotification(Matchers.eq(data)))
+      when(mockRepo.cacheETMPNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(true))
 
       val result = await(TestService.cacheNotification(data))
@@ -69,11 +73,11 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
   "getCachedNotification" should {
 
     val data = ETMPNotification(
-      "aaa","bbb",Some("ccc"),"ddd"
+      "aaa", "bbb", Some("ccc"), "ddd"
     )
 
     "return an optional ETMP notif model" in new Setup {
-      when(mockRepo.retrieveETMPNotification(Matchers.any()))
+      when(mockRepo.retrieveETMPNotification(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(data)))
 
       val result = await(TestService.getCachedNotification("testAcKRef"))
@@ -81,7 +85,7 @@ class NotificationServiceSpec extends UnitSpec with WithFakeApplication with Moc
     }
 
     "return None" in new Setup {
-      when(mockRepo.retrieveETMPNotification(Matchers.any()))
+      when(mockRepo.retrieveETMPNotification(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       val result = await(TestService.getCachedNotification("testAcKRef"))

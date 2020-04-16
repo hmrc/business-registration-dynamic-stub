@@ -19,44 +19,44 @@ package controllers
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import cats.data.OptionT
+import mocks.MockConfig
 import models._
 import org.joda.time.DateTime
-import org.scalatest.mockito.MockitoSugar
-import play.api.libs.json.{JsObject, JsValue, Json}
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
-import play.api.test.Helpers._
-import services.NotificationService
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.mockito.Matchers
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.scalatest.{Matchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import reactivemongo.api.commands.DefaultWriteResult
+import services.NotificationService
 
 import scala.concurrent.Future
 
-class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecHelper {
+class StubControllerSpec extends WordSpec with Matchers with MockitoSugar with MockConfig {
 
   implicit val system = ActorSystem("test")
-  implicit def mat: Materializer = ActorMaterializer()
+
+  implicit val mat: Materializer = ActorMaterializer()
 
   val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
 
   val mockNotifService = mock[NotificationService]
 
+  lazy val controllerComponents = stubControllerComponents(playBodyParsers = stubPlayBodyParsers(mat))
+
   class Setup {
-    val controller = new StubController {
-      def dateTime = testDateTime
-      val notificationService = mockNotifService
+    val controller = new StubController(mockNotifService, mockConfig, controllerComponents) {
+      override def dateTime = testDateTime
     }
   }
 
   class SetupNoTimestamp {
-    val controller = new StubController {
-      def dateTime = testDateTime
-
-      val notificationService = mockNotifService
+    val controller = new StubController(mockNotifService, mockConfig, controllerComponents) {
+      override def dateTime = testDateTime
 
       override def generateTimestamp: String = {
         dateTime.toString()
@@ -64,7 +64,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     }
   }
 
-  def mockResponse(statusCode : Int) : WSResponse = {
+  def mockResponse(statusCode: Int): WSResponse = {
     val m = mock[WSResponse]
     when(m.status).thenReturn(statusCode)
     m
@@ -75,7 +75,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     val ackRef = "SCRS01234567890"
 
     val fullDesSubmission = FullDesSubmission(
-     ackRef,
+      ackRef,
       Registration(
         Metadata(
           "testBusinessType",
@@ -118,9 +118,9 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         .thenReturn(OptionT(Future.successful(None: Option[SetupDesResponse])))
 
       val request = FakeRequest().withJsonBody(Json.toJson(fullDesSubmission))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe successResponse
+      contentAsJson(result) shouldBe successResponse
     }
 
     "return 200 with a successful response with takeover details provided" in new Setup {
@@ -142,9 +142,9 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
           )
         )
       )))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe successResponse
+      contentAsJson(result) shouldBe successResponse
 
     }
 
@@ -153,9 +153,10 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(hasCompanyTakenOverBusiness = true))
       )))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
+
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result) shouldBe invalidJsonResponse
+      contentAsJson(result) shouldBe invalidJsonResponse
     }
 
     "return 200 with a successful response with group details provided" in new Setup {
@@ -165,11 +166,11 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(
             companyMemberOfGroup = true,
-            groupDetails = Some(GroupDetails("fooBar",None,Some("1234567890"),BusinessAddress("1","2",None,None,None,None)))))
+            groupDetails = Some(GroupDetails("fooBar", None, Some("1234567890"), BusinessAddress("1", "2", None, None, None, None)))))
       )))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe successResponse
+      contentAsJson(result) shouldBe successResponse
 
     }
 
@@ -178,22 +179,24 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
         registration = fullDesSubmission.registration.copy(
           corporationTax = fullDesSubmission.registration.corporationTax.copy(companyMemberOfGroup = true))
       )))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result) shouldBe invalidJsonResponse
+      contentAsJson(result) shouldBe invalidJsonResponse
     }
 
     "return a 400 with a reason in json when an invalid des submission fails validation" in new Setup {
       val request = FakeRequest().withJsonBody(Json.toJson("""{"test" : "toFailValidation"}"""))
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe BAD_REQUEST
-      jsonBodyOf(result) shouldBe invalidJsonResponse
+      contentAsJson(result) shouldBe invalidJsonResponse
     }
 
     "return a 400 with a reason in json when presented with malformed json" in new Setup {
+
       import play.api.http.HeaderNames.CONTENT_TYPE
+
       val request = FakeRequest().withBody("malformed").withHeaders(CONTENT_TYPE -> "application/json")
-      val result = await(call(controller.submit(), request))
+      val result = call(controller.submit(), request)
       status(result) shouldBe BAD_REQUEST
     }
   }
@@ -231,7 +234,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     )
 
     "return an OK" in new Setup {
-      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+      when(mockNotifService.cacheNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(false))
 
       val result = controller.cacheNotificationData()(request)
@@ -239,7 +242,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     }
 
     "return an internal server error" in new Setup {
-      when(mockNotifService.cacheNotification(Matchers.eq(data)))
+      when(mockNotifService.cacheNotification(ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(true))
 
       val result = controller.cacheNotificationData()(request)
@@ -249,13 +252,13 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
 
   "updateCTRecord" should {
     val data = ETMPNotification(
-      "1234567890","testRegime",Some("1234567890"),"04"
+      "1234567890", "testRegime", Some("1234567890"), "04"
     )
 
     val successResponse = mockResponse(OK)
 
     "return a bad request" in new Setup {
-      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+      when(mockNotifService.getCachedNotification(ArgumentMatchers.eq("testAckRef")))
         .thenReturn(Future.successful(None))
 
       val result = controller.notifyBRN("testAckRef")(FakeRequest())
@@ -263,10 +266,10 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     }
 
     "return a OK" in new Setup {
-      when(mockNotifService.getCachedNotification(Matchers.eq("testAckRef")))
+      when(mockNotifService.getCachedNotification(ArgumentMatchers.eq("testAckRef")))
         .thenReturn(Future.successful(Some(data)))
 
-      when(mockNotifService.callBRN(Matchers.eq("testAckRef"), Matchers.eq(data)))
+      when(mockNotifService.callBRN(ArgumentMatchers.eq("testAckRef"), ArgumentMatchers.eq(data)))
         .thenReturn(Future.successful(successResponse))
 
       val result = controller.notifyBRN("testAckRef")(FakeRequest())
@@ -324,7 +327,7 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
 
   "topup" should {
     "return an accepted" in new Setup {
-      val result = controller.topup ()(FakeRequest())
+      val result = controller.topup()(FakeRequest())
       status(result) shouldBe ACCEPTED
     }
   }
@@ -334,26 +337,25 @@ class StubControllerSpec extends UnitSpec with MockitoSugar with ControllerSpecH
     val writeResult = DefaultWriteResult(ok = true, 1, Nil, None, None, None)
 
     "not parse the request body if nothing was supplied and return an ok" in new Setup {
-      when(mockNotifService.setupNextDESResponse(eqTo(BAD_GATEWAY), eqTo(None)))
+      when(mockNotifService.setupNextDESResponse(ArgumentMatchers.eq(BAD_GATEWAY), ArgumentMatchers.eq(None)))
         .thenReturn(Future.successful(writeResult))
 
-      val result: Result = await(call(controller.setupNextDESResponse(BAD_GATEWAY), FakeRequest()))
-
-      result.status shouldBe OK
+      val result: Future[Result] = call(controller.setupNextDESResponse(BAD_GATEWAY), FakeRequest())
+      status(result) shouldBe OK
     }
 
     "parse the request body if it was supplied and return an ok" in new Setup {
       val json: JsObject = Json.obj("test" -> "json")
 
-      when(mockNotifService.setupNextDESResponse(eqTo(BAD_GATEWAY), eqTo(json.asOpt[JsValue])))
+      when(mockNotifService.setupNextDESResponse(ArgumentMatchers.eq(BAD_GATEWAY), ArgumentMatchers.eq(json.asOpt[JsValue])))
         .thenReturn(Future.successful(writeResult))
 
       val requestWithJson: FakeRequest[AnyContentAsJson] =
         FakeRequest().withJsonBody(json).withHeaders("Content-Type" -> "application/json")
 
-      val result: Result = await(call(controller.setupNextDESResponse(BAD_GATEWAY), requestWithJson))
+      val result: Future[Result] = call(controller.setupNextDESResponse(BAD_GATEWAY), requestWithJson)
 
-      result.status shouldBe OK
+      status(result) shouldBe OK
     }
   }
 }

@@ -16,43 +16,33 @@
 
 package mongo
 
-import javax.inject.Inject
-
 import cats.data.OptionT
+import javax.inject.{Inject, Singleton}
 import models.SetupIVOutcome
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.DB
 import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{BSONDocument, BSONObjectID, BSONString}
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.ReactiveRepository
+import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.play.json.ImplicitBSONHandlers.BSONDocumentWrites
+import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@Singleton
+class IVOutcomeRepository @Inject()(mongo: ReactiveMongoComponent) extends ReactiveRepository[SetupIVOutcome, BSONObjectID](
+  "setup-iv-outcome",
+  mongo.mongoConnector.db,
+  SetupIVOutcome.mongoFormat,
+  ReactiveMongoFormats.objectIdFormats) {
 
-class IVOutcomeRepo @Inject()(implicit val mongo: ReactiveMongoComponent) {
-  private lazy val repository = new IVOutcomeMongoRepository
-
-  def apply(): IVOutcomeMongoRepository = repository
-}
-
-trait IVOutcomeRepository extends ReactiveRepository[SetupIVOutcome, BSONObjectID]{
-  def upsertIVOutcome(data: SetupIVOutcome): Future[WriteResult]
-  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome]
-}
-
-class IVOutcomeMongoRepository(implicit mongo: () => DB)
-  extends ReactiveRepository[SetupIVOutcome, BSONObjectID]("setup-iv-outcome", mongo, SetupIVOutcome.mongoFormat, ReactiveMongoFormats.objectIdFormats)
-    with IVOutcomeRepository {
-
-  override def upsertIVOutcome(data: SetupIVOutcome): Future[WriteResult] = {
+  def upsertIVOutcome(data: SetupIVOutcome): Future[WriteResult] = {
     collection
       .update(ordered = true)
       .one(BSONDocument("journeyId" -> data.journeyId), data, upsert = true)(global, BSONDocumentWrites, domainFormatImplicit)
   }
 
-  override def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = {
+  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = {
     OptionT(collection.find(BSONDocument("journeyId" -> journeyId), projection = None).one[SetupIVOutcome])
   }
 }

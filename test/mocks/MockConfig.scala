@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.DefaultDB
+package mocks
 
-package object mongo {
+import org.scalatest.Suite
+import org.scalatestplus.mockito.MockitoSugar
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-  implicit def componentToDB(implicit mongo: ReactiveMongoComponent): () => DefaultDB = mongo.mongoConnector.db
+trait MockConfig extends MockitoSugar {
+  this: Suite =>
+  val mockConfig: ServicesConfig = mock[ServicesConfig]
 }

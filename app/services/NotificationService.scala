@@ -16,69 +16,57 @@
 
 package services
 
-import javax.inject.Inject
-
 import cats.data.OptionT
-import config.Config
+import javax.inject.{Inject, Singleton}
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
-import mongo.{DESResponseRepo, DESResponseRepository, ETMPNotificationMongoRepository, ETMPNotificationRepo}
+import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import reactivemongo.api.commands.WriteResult
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@Singleton
+class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
+                                    DESResponseRepository: DESResponseRepository,
+                                    config: ServicesConfig,
+                                    runMode: RunMode,
+                                    val ws: WSClient) {
 
-class NotificationServiceImpl @Inject()(etmpRepository : ETMPNotificationRepo,
-                                        DESResponseRepository: DESResponseRepo,
-                                        config: Config,
-                                        val ws: WSClient) extends NotificationService {
 
-  val etmpRepo: ETMPNotificationMongoRepository = etmpRepository()
-  val desResponseRepository: DESResponseRepository = DESResponseRepository()
   val busRegNotif = s"${config.baseUrl("business-registration-notification")}/business-registration-notification"
-  val username = config.getString(s"${config.env}.basicAuth.username")
-  val password = config.getString(s"${config.env}.basicAuth.password")
-}
+  val username = config.getString(s"${runMode.env}.basicAuth.username")
+  val password = config.getString(s"${runMode.env}.basicAuth.password")
 
-trait NotificationService {
-
-  val etmpRepo : ETMPNotificationMongoRepository
-  val desResponseRepository: DESResponseRepository
-
-  val ws: WSClient
-  val busRegNotif : String
-
-  val username : String
-  val password : String
-
-  def cacheNotification(curl : CurlETMPNotification) : Future[Boolean] = {
-    etmpRepo.cacheETMPNotification(curl)
+  def cacheNotification(curl: CurlETMPNotification): Future[Boolean] = {
+    etmpRepository.cacheETMPNotification(curl)
   }
 
-  def getCachedNotification(ackRef : String) : Future[Option[ETMPNotification]] = {
-    etmpRepo.retrieveETMPNotification(ackRef)
+  def getCachedNotification(ackRef: String): Future[Option[ETMPNotification]] = {
+    etmpRepository.retrieveETMPNotification(ackRef)
   }
 
   def setupNextDESResponse(status: Int, optJson: Option[JsValue]): Future[WriteResult] = {
     val desResponse = SetupDesResponse(status, optJson)
-    desResponseRepository.storeNextDesResponse(desResponse)
+    DESResponseRepository.storeNextDesResponse(desResponse)
   }
 
-  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = desResponseRepository.fetchNextDesResponse
+  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = DESResponseRepository.fetchNextDesResponse
 
-  def resetDesResponse: Future[Boolean] = desResponseRepository.resetDesResponse.map(_.ok)
+  def resetDesResponse: Future[Boolean] = DESResponseRepository.resetDesResponse.map(_.ok)
 
   // $COVERAGE-OFF$
-  def callBRN(ackRef : String, eTMPNotification: ETMPNotification) : Future[WSResponse] = {
+  def callBRN(ackRef: String, eTMPNotification: ETMPNotification): Future[WSResponse] = {
     val json = Json.toJson(eTMPNotification)
     ws.url(s"$busRegNotif/notification/$ackRef")
       .withAuth(username, password, WSAuthScheme.BASIC)
       .withBody(json)
       .post(json)
   }
+
   // $COVERAGE-ON$
 
-  def destroyCachedNotifications : Future[String] = etmpRepo.wipeETMPNotification
+  def destroyCachedNotifications: Future[String] = etmpRepository.wipeETMPNotification
 }

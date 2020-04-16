@@ -18,12 +18,12 @@ package api
 
 import helpers.APIHelper
 import models._
-import mongo.DESResponseMongoRepository
-import org.joda.time.DateTime
+import mongo.DESResponseRepository
 import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
-import play.modules.reactivemongo.MongoDbConnection
+import play.api.test.Helpers._
+import play.modules.reactivemongo.ReactiveMongoComponent
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext
@@ -32,8 +32,9 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
   implicit val ex: ExecutionContext = implicitly[Application].actorSystem.dispatcher.prepare()
 
-  class Setup extends MongoDbConnection {
-    val desResponseRepo = new DESResponseMongoRepository()(db)
+  class Setup {
+    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val desResponseRepo = new DESResponseRepository(rmc)
 
     await(desResponseRepo.drop)
     await(desResponseRepo.count) shouldBe 0
@@ -85,7 +86,7 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
       val setupResponseStatus = 999
       val path = s"$uri/$setupResponseStatus"
 
-      val response: WSResponse = wsPost(path)
+      val response: WSResponse = await(wsPost(path))
 
       desResponseRepo.awaitCount shouldBe 1
       response.status shouldBe 200
@@ -95,13 +96,13 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
       res shouldBe expected
 
-      val submissionResponse: WSResponse = wsPost(submissionPath, Some(desSubmissionJson))
+      val submissionResponse: WSResponse = await(wsPost(submissionPath, Some(desSubmissionJson)))
 
       submissionResponse.status shouldBe setupResponseStatus
 
       desResponseRepo.awaitCount shouldBe 0
 
-      val submissionResponse2: WSResponse = wsPost(submissionPath, Some(desSubmissionJson))
+      val submissionResponse2: WSResponse = await(wsPost(submissionPath, Some(desSubmissionJson)))
 
       submissionResponse2.status shouldBe 200
     }
