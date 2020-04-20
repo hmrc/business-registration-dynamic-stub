@@ -15,33 +15,30 @@
 */
 package mongo
 
-import helpers.APIHelper
 import models._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import play.api.Application
+import play.api.test.Helpers._
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.{BSONDocument, BSONString}
-import uk.gov.hmrc.mongo.MongoSpecSupport
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoIntegrationSpec with BeforeAndAfterEach with ScalaFutures with Eventually {
   class Setup {
-//    val repository = new ETMPNotificationMongoRepository()
+
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repository = new ETMPNotificationRepo()(rmc).apply()
+    val repository = new ETMPNotificationRepository(rmc)
 
     await(repository.drop)
     await(repository.count) shouldBe 0
     await(repository.ensureIndexes)
   }
 
-  def setupCollection(repo: ETMPNotificationMongoRepository, ctRegistration: CurlETMPNotification): Future[WriteResult] = {
+  def setupCollection(repo: ETMPNotificationRepository, ctRegistration: CurlETMPNotification): Future[WriteResult] = {
     repo.insert(ctRegistration)
   }
 

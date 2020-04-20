@@ -18,11 +18,12 @@ package api
 
 import helpers.APIHelper
 import models.SetupIVOutcome
-import mongo.{IVOutcomeMongoRepository, IVOutcomeRepo}
+import mongo.IVOutcomeRepository
 import play.api.Application
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
+import play.api.test.Helpers._
+import play.modules.reactivemongo.ReactiveMongoComponent
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext
@@ -33,7 +34,7 @@ class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec 
 
   class Setup {
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]
-    val ivOutcomeRepo = new IVOutcomeRepo()(rmc).apply()
+    val ivOutcomeRepo = new IVOutcomeRepository(rmc)
 
     await(ivOutcomeRepo.drop)
     await(ivOutcomeRepo.count) shouldBe 0
@@ -45,7 +46,7 @@ class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec 
       val outcome = "Success"
       val expected = SetupIVOutcome(journeyId, outcome)
 
-      val response: WSResponse = wsPost(s"identity-verification/setup-iv-outcome/$journeyId/$outcome")
+      val response: WSResponse = await(wsPost(s"identity-verification/setup-iv-outcome/$journeyId/$outcome"))
 
       ivOutcomeRepo.awaitCount shouldBe 1
       response.status shouldBe 200
@@ -71,7 +72,7 @@ class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec 
 
       ivOutcomeRepo.awaitCount shouldBe 1
 
-      val response: WSResponse = wsGet(s"identity-verification/mdtp/journey/journeyId/$journeyId")
+      val response: WSResponse = await(wsGet(s"identity-verification/mdtp/journey/journeyId/$journeyId"))
 
       response.status shouldBe 200
       Json.parse(response.body) shouldBe expectedJson

@@ -16,22 +16,18 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import cats.instances.FutureInstances
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.IVService
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class IVStubControllerImpl @Inject()(val iVService: IVService) extends IVStubController
-
-trait IVStubController extends BaseController with FutureInstances {
-
-  val iVService: IVService
+@Singleton
+class IVStubController @Inject()(iVService: IVService, cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
 
   def ivOutcome(journeyId: String): Action[AnyContent] = Action.async {
     implicit request =>

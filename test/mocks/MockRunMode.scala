@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package mocks
 
-import play.api.mvc.Result
+import org.scalatest.Suite
+import org.scalatestplus.mockito.MockitoSugar
+import uk.gov.hmrc.play.bootstrap.config.RunMode
 
-trait ControllerSpecHelper {
-
-  implicit class ResultOps(result: Result) {
-    def status = result.header.status
-  }
+trait MockRunMode extends MockitoSugar {
+  this: Suite =>
+  val mockRunMode: RunMode = mock[RunMode]
 }
