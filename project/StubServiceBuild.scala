@@ -19,8 +19,8 @@ private object AppDependencies {
   private val bootstrapPlay26Version = "1.7.0"
   private val scalaTestVersion = "3.0.8"
   private val pegdownVersion = "1.6.0"
-  private val simpleReactivemongoVersion = "7.20.0-play-26"
-  private val reactivemongoTestVersion = "4.19.0-play-26"
+  private val simpleReactivemongoVersion = "7.30.0-play-26"
+  private val reactivemongoTestVersion = "4.21.0-play-26"
 
   val compile = Seq(
     ws,
