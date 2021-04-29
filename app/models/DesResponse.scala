@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package models
 
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 import scala.language.implicitConversions
 
@@ -43,6 +43,6 @@ object SetupDesResponse {
 
   val responseWrites: Writes[SetupDesResponse] = (
     (__ \ "status").write[Int] and
-    (__ \ "responseJson").writeNullable[JsValue]
-  )(unlift(SetupDesResponse.unapply))
+      (__ \ "responseJson").writeNullable[JsValue]
+    ) (unlift(SetupDesResponse.unapply))
 }

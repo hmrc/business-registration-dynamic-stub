@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package services
 
 import cats.data.OptionT
-import javax.inject.{Inject, Singleton}
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
 import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import play.api.libs.json.{JsValue, Json}
@@ -25,6 +24,7 @@ import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

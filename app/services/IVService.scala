@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 package services
 
 import cats.data.OptionT
-import javax.inject.{Inject, Singleton}
 import models.SetupIVOutcome
 import mongo.IVOutcomeRepository
 import reactivemongo.api.commands.WriteResult
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
