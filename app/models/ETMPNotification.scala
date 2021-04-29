@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,25 @@ package models
 
 import play.api.libs.json.Json
 
-case class ETMPNotification(timestamp : String,
-                            regime : String,
-                            `business-tax-identifier` : Option[String],
-                            status : String)
+case class ETMPNotification(timestamp: String,
+                            regime: String,
+                            `business-tax-identifier`: Option[String],
+                            status: String)
 
 object ETMPNotification {
   implicit val format = Json.format[ETMPNotification]
 }
 
-case class CurlETMPNotification(ackRef : String,
-                                timestamp : String,
-                                regime : String,
-                                `business-tax-identifier` : Option[String],
-                                status : String)
+case class CurlETMPNotification(ackRef: String,
+                                timestamp: String,
+                                regime: String,
+                                `business-tax-identifier`: Option[String],
+                                status: String)
 
 object CurlETMPNotification {
   implicit val format = Json.format[CurlETMPNotification]
 
-  def convertToETMPNotification(curl : CurlETMPNotification) : ETMPNotification = {
+  def convertToETMPNotification(curl: CurlETMPNotification): ETMPNotification = {
     ETMPNotification(curl.timestamp, curl.regime, curl.`business-tax-identifier`, curl.status)
   }
 }

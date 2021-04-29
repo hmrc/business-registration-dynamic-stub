@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package controllers
 
 import cats.instances.FutureInstances
-import javax.inject.{Inject, Singleton}
 import models._
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
@@ -28,6 +27,7 @@ import services.NotificationService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -40,6 +40,8 @@ class StubController @Inject()(notificationService: NotificationService,
 
   val busRegNotification = config.baseUrl("business-registration-notification")
 
+  val logger: Logger = Logger(this.getClass())
+
   private lazy val malformedJsonResponse = DesFailureResponse("Invalid JSON message received")
   private lazy val invalidJsonResponse = DesFailureResponse("Your submission contains one or more errors")
   private lazy val successDesResponse = DesSuccessResponse(generateTimestamp, generateAckRef)
@@ -49,14 +51,14 @@ class StubController @Inject()(notificationService: NotificationService,
       Try(request.body.validate[FullDesSubmission]) match {
         case Success(JsSuccess(desSubmission, _)) =>
           fetchDesResponse {
-            Logger.info(s"[DES Submission] [Success] - $desSubmission")
+            logger.info(s"[DES Submission] [Success] - $desSubmission")
             Ok(Json.toJson(successDesResponse))
           }
         case Success(JsError(errors)) =>
-          Logger.warn("Errors from submission" + errors)
+          logger.warn("Errors from submission" + errors)
           Future.successful(BadRequest(Json.toJson(invalidJsonResponse)))
         case Failure(e) =>
-          Logger.warn("Exception thrown" + e)
+          logger.warn("Exception thrown" + e)
           Future.successful(BadRequest(Json.toJson(malformedJsonResponse)))
       }
   }
@@ -123,7 +125,7 @@ class StubController @Inject()(notificationService: NotificationService,
 
   val topup = Action {
     implicit request =>
-      Logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
+      logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
       Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
   }
 }

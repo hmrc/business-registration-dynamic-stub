@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.WSResponse
@@ -36,7 +37,7 @@ import services.NotificationService
 
 import scala.concurrent.Future
 
-class StubControllerSpec extends WordSpec with Matchers with MockitoSugar with MockConfig {
+class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
 
   implicit val system = ActorSystem("test")
 

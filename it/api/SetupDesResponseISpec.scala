@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,15 @@ package api
 import helpers.APIHelper
 import models._
 import mongo.DESResponseRepository
-import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
 import play.modules.reactivemongo.ReactiveMongoComponent
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpec with APIHelper {
-
-  implicit val ex: ExecutionContext = implicitly[Application].actorSystem.dispatcher.prepare()
 
   class Setup {
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]

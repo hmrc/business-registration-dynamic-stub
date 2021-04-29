@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package util
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.Helpers._
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext
 
-trait MongoIntegrationSpec extends WordSpec with Matchers {
+trait MongoIntegrationSpec extends AnyWordSpec with Matchers {
 
   implicit class ReactiveRepositoryOps[T](repo: ReactiveRepository[T, _])(implicit ex: ExecutionContext) {
     def awaitCount: Int = await(repo.count)

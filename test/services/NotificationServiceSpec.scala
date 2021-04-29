@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import models.{CurlETMPNotification, ETMPNotification}
 import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.ws.WSClient
@@ -29,7 +30,7 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class NotificationServiceSpec extends WordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockRunMode with MockConfig {
+class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockRunMode with MockConfig {
 
   val mockRepo = mock[ETMPNotificationRepository]
   val mockDesRespRepo = mock[DESResponseRepository]
