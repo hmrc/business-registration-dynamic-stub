@@ -17,15 +17,15 @@
 package controllers
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import cats.data.OptionT
 import mocks.MockConfig
 import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.WSResponse
@@ -41,7 +41,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
 
   implicit val system = ActorSystem("test")
 
-  implicit val mat: Materializer = ActorMaterializer()
+  implicit val mat: Materializer = Materializer(system)
 
   val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
 
@@ -111,7 +111,6 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
 
     val successResponse = Json.toJson(DesSuccessResponse(testDateTime.toString, ackRef))
     val invalidJsonResponse = Json.toJson(DesFailureResponse("Your submission contains one or more errors"))
-    val malformedJsonResponse = Json.toJson(DesFailureResponse("Invalid JSON message received"))
 
     "return a 200 with a timestamp and ack ref if the des submission is validated successfully" in new SetupNoTimestamp {
 

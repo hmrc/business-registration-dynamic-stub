@@ -16,7 +16,7 @@
 
 package services
 
-import mocks.{MockConfig, MockRunMode}
+import mocks.MockConfig
 import models.{CurlETMPNotification, ETMPNotification}
 import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import org.mockito.ArgumentMatchers
@@ -30,7 +30,7 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockRunMode with MockConfig {
+class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockConfig {
 
   val mockRepo = mock[ETMPNotificationRepository]
   val mockDesRespRepo = mock[DESResponseRepository]
@@ -38,7 +38,7 @@ class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with 
 
   class Setup {
 
-    object TestService extends NotificationService(mockRepo, mockDesRespRepo, mockConfig, mockRunMode, mockWs) {
+    object TestService extends NotificationService(mockRepo, mockDesRespRepo, mockConfig, mockWs) {
 
       override val busRegNotif = "/testUrl/"
       override val username = "testUserName"

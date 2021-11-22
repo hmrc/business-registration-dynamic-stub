@@ -19,7 +19,7 @@ package models
 import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
-import play.api.libs.json.{Format, Json, _}
+import play.api.libs.json._
 
 case class GroupDetails(
                          parentCompanyName: String,

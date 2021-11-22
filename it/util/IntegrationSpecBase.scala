@@ -19,5 +19,20 @@ package util
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.json.JsValue
+import play.api.libs.ws.{EmptyBody, WSClient, WSRequest, WSResponse}
 
-trait IntegrationSpecBase extends AnyWordSpec with Matchers with GuiceOneServerPerSuite
+import scala.concurrent.Future
+
+trait IntegrationSpecBase extends AnyWordSpec with Matchers with GuiceOneServerPerSuite {
+
+  val ws: WSClient = app.injector.instanceOf[WSClient]
+
+  private def client(path: String): WSRequest = ws.url(s"http://localhost:$port/$path").withFollowRedirects(false)
+
+  def wsPost(path: String, body: Option[JsValue] = None): Future[WSResponse] = {
+    body.fold(client(path).post(EmptyBody))(json => client(path).post(json))
+  }
+
+  def wsGet(path: String): Future[WSResponse] = client(path).get
+}

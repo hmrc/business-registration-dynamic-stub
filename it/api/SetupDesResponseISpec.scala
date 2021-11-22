@@ -16,7 +16,6 @@
 
 package api
 
-import helpers.APIHelper
 import models._
 import mongo.DESResponseRepository
 import play.api.libs.json.{JsValue, Json}
@@ -27,7 +26,7 @@ import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpec with APIHelper {
+class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpec {
 
   class Setup {
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]
