@@ -5,7 +5,7 @@ import sbt._
 
 object AppDependencies {
 
-  private val bootstrapPlayVersion = "4.1.0"
+  private val bootstrapPlayVersion = "5.16.0"
   private val scalaTestVersion = "3.1.4"
   private val simpleReactivemongoVersion = "8.0.0-play-28"
   private val reactivemongoTestVersion = "5.0.0-play-28"
