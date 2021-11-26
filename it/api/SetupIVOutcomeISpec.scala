@@ -16,7 +16,6 @@
 
 package api
 
-import helpers.APIHelper
 import models.SetupIVOutcome
 import mongo.IVOutcomeRepository
 import play.api.libs.json.Json
@@ -27,7 +26,7 @@ import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec with APIHelper {
+class SetupIVOutcomeISpec extends IntegrationSpecBase with MongoIntegrationSpec {
 
   class Setup {
     val rmc = app.injector.instanceOf[ReactiveMongoComponent]

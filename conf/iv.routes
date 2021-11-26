@@ -1,4 +1,4 @@
 # microservice specific routes
 
-POST       /setup-iv-outcome/:journeyId/:outcome         @controllers.IVStubController.setupIVOutcome(journeyId, outcome)
-GET        /mdtp/journey/journeyId/:journeyId            @controllers.IVStubController.ivOutcome(journeyId)
+POST        /setup-iv-outcome/:journeyId/:outcome        @controllers.IVStubController.setupIVOutcome(journeyId, outcome)
+GET         /mdtp/journey/journeyId/:journeyId           @controllers.IVStubController.ivOutcome(journeyId)

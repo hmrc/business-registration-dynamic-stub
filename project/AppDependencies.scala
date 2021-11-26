@@ -1,19 +1,18 @@
 
-import sbt._
 import play.core.PlayVersion
 import play.sbt.PlayImport._
+import sbt._
 
 object AppDependencies {
 
-  private val bootstrapPlay26Version = "3.2.0"
-  private val scalaTestVersion = "3.2.8"
-  private val pegdownVersion = "1.6.0"
-  private val simpleReactivemongoVersion = "8.0.0-play-26"
-  private val reactivemongoTestVersion = "5.0.0-play-26"
+  private val bootstrapPlayVersion = "4.1.0"
+  private val scalaTestVersion = "3.1.4"
+  private val simpleReactivemongoVersion = "8.0.0-play-28"
+  private val reactivemongoTestVersion = "5.0.0-play-28"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % bootstrapPlay26Version,
+    "uk.gov.hmrc" %% "bootstrap-backend-play-28" % bootstrapPlayVersion,
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactivemongoVersion,
     "org.typelevel" %% "cats" % "0.9.0"
   )
@@ -27,12 +26,11 @@ object AppDependencies {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
-        "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "uk.gov.hmrc" %% "reactivemongo-test" % reactivemongoTestVersion % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-        "org.mockito" % "mockito-core" % "3.9.0" % scope,
-        "org.scalatestplus" %% "mockito-3-4" % "3.2.8.0" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % scope,
+        "org.mockito" % "mockito-core" % "4.0.0" % scope,
+        "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % scope,
         "com.vladsch.flexmark" % "flexmark-all" % "0.36.8" % scope
       )
     }.test
@@ -45,11 +43,10 @@ object AppDependencies {
 
       override lazy val test = Seq(
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
-        "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "uk.gov.hmrc" %% "reactivemongo-test" % reactivemongoTestVersion % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-        "com.github.tomakehurst" % "wiremock-jre8" % "2.26.3" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % scope,
+        "com.github.tomakehurst" % "wiremock-jre8-standalone" % "2.31.0" % scope,
         "com.vladsch.flexmark" % "flexmark-all" % "0.36.8" % scope
       )
     }.test

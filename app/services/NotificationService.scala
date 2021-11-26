@@ -22,7 +22,7 @@ import mongo.{DESResponseRepository, ETMPNotificationRepository}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,13 +32,12 @@ import scala.concurrent.Future
 class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
                                     DESResponseRepository: DESResponseRepository,
                                     config: ServicesConfig,
-                                    runMode: RunMode,
                                     val ws: WSClient) {
 
 
   val busRegNotif = s"${config.baseUrl("business-registration-notification")}/business-registration-notification"
-  val username = config.getString(s"${runMode.env}.basicAuth.username")
-  val password = config.getString(s"${runMode.env}.basicAuth.password")
+  val username = config.getString(s"basicAuth.username")
+  val password = config.getString(s"basicAuth.password")
 
   def cacheNotification(curl: CurlETMPNotification): Future[Boolean] = {
     etmpRepository.cacheETMPNotification(curl)

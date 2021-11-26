@@ -14,7 +14,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) : _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin): _*)
   .settings(scalaSettings: _*)
   .settings(majorVersion := 0)
   .settings(publishingSettings: _*)
@@ -22,14 +22,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     scoverageSettings,
     libraryDependencies ++= AppDependencies(),
-    dependencyOverrides ++= Seq(
-      "com.typesafe.akka" %% "akka-actor" % "2.6.0",
-      "com.typesafe.akka" %% "akka-protobuf" % "2.6.0",
-      "com.typesafe.akka" %% "akka-slf4j" % "2.6.0",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.0",
-      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.0",
-      "com.typesafe.akka" %% "akka-serialization-jackson" % "2.6.0"
-    ),
     retrieveManaged := true,
     scalaVersion := "2.12.12"
   )
