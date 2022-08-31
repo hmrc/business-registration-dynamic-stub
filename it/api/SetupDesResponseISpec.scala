@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import mongo.DESResponseRepository
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
-import play.modules.reactivemongo.ReactiveMongoComponent
+import uk.gov.hmrc.mongo.MongoComponent
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,11 +29,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpec {
 
   class Setup {
-    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val rmc = app.injector.instanceOf[MongoComponent]
     val desResponseRepo = new DESResponseRepository(rmc)
 
-    await(desResponseRepo.drop)
-    await(desResponseRepo.count) shouldBe 0
+    desResponseRepo.deleteAll
+    desResponseRepo.count shouldBe 0
   }
 
   val submissionPath = "business-registration/corporation-tax"
@@ -84,11 +84,11 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
       val response: WSResponse = await(wsPost(path))
 
-      desResponseRepo.awaitCount shouldBe 1
+      desResponseRepo.count shouldBe 1
       response.status shouldBe 200
 
-      val res :: Nil = await(desResponseRepo.findAll())
-      val expected = SetupDesResponse(setupResponseStatus, None)
+      val res = desResponseRepo.findAll
+      val expected = Seq(SetupDesResponse(setupResponseStatus, None))
 
       res shouldBe expected
 
@@ -96,7 +96,7 @@ class SetupDesResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
       submissionResponse.status shouldBe setupResponseStatus
 
-      desResponseRepo.awaitCount shouldBe 0
+      desResponseRepo.count shouldBe 0
 
       val submissionResponse2: WSResponse = await(wsPost(submissionPath, Some(desSubmissionJson)))
 
