@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,15 @@ import scala.concurrent.Future
 class IVStubController @Inject()(iVService: IVService, cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
 
   def ivOutcome(journeyId: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      iVService.fetchIVOutcome(journeyId).semiflatMap { iv =>
-        Future.successful(Ok(Json.obj(
-          "result" -> iv.outcome,
-          "token" -> "aaaa-bbbb-ccccc"
-        )))
-      }.getOrElse(NotFound)
+    iVService.fetchIVOutcome(journeyId).semiflatMap { iv =>
+      Future.successful(Ok(Json.obj(
+        "result" -> iv.outcome,
+        "token" -> "aaaa-bbbb-ccccc"
+      )))
+    }.getOrElse(NotFound)
   }
 
   def setupIVOutcome(journeyId: String, outcome: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      iVService.setupIVOutcome(journeyId, outcome) map (_ => Ok)
+    iVService.setupIVOutcome(journeyId, outcome) map (_ => Ok)
   }
 }

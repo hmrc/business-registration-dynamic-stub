@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,14 @@ package controllers
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import cats.data.OptionT
+import com.mongodb.client.result.UpdateResult
 import mocks.MockConfig
 import models._
+import org.bson.types.ObjectId
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.mongodb.scala.bson.BsonString
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +35,6 @@ import play.api.libs.ws.WSResponse
 import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import reactivemongo.api.commands.DefaultWriteResult
 import services.NotificationService
 
 import scala.concurrent.Future
@@ -334,7 +336,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
 
   "setupNextDESResponse" should {
 
-    val writeResult = DefaultWriteResult(ok = true, 1, Nil, None, None, None)
+    val writeResult = UpdateResult.acknowledged(1, 0, BsonString(ObjectId.get().toString))
 
     "not parse the request body if nothing was supplied and return an ok" in new Setup {
       when(mockNotifService.setupNextDESResponse(ArgumentMatchers.eq(BAD_GATEWAY), ArgumentMatchers.eq(None)))

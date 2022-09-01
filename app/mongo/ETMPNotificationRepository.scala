@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,55 +17,42 @@
 package mongo
 
 import models.{CurlETMPNotification, ETMPNotification}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDocument, BSONObjectID, BSONString}
-import reactivemongo.play.json.ImplicitBSONHandlers.BSONDocumentWrites
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ETMPNotificationRepository @Inject()(mongo: ReactiveMongoComponent) extends ReactiveRepository[CurlETMPNotification, BSONObjectID](
-  "etmp-notif-store",
-  mongo.mongoConnector.db,
-  CurlETMPNotification.format,
-  ReactiveMongoFormats.objectIdFormats) {
-
-  override def indexes: Seq[Index] = Seq(
-    Index(
-      key = Seq("ackRef" -> IndexType.Ascending),
-      name = Some("AckRefIndex"),
-      unique = false,
-      sparse = false
+class ETMPNotificationRepository @Inject()(mongo: MongoComponent)
+                                          (implicit ec: ExecutionContext) extends PlayMongoRepository[CurlETMPNotification](
+  mongoComponent = mongo,
+  collectionName = "etmp-notif-store",
+  domainFormat = CurlETMPNotification.format,
+  indexes = Seq(
+    IndexModel(
+      ascending("ackRef"),
+      IndexOptions()
+        .name("AckRefIndex")
+        .unique(false)
+        .sparse(false)
     )
   )
+) {
 
-  def ackRefSelector(ackRef: String): BSONDocument = {
-    BSONDocument("ackRef" -> BSONString(ackRef))
-  }
+  def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] =
+    collection.insertOne(notification).toFuture() map { _ => false } recover { case _ => true }
 
-  def cacheETMPNotification(notification: CurlETMPNotification): Future[Boolean] = {
-    collection.insert(ordered = true).one(notification) map {
-      _ => false
-    } recover {
-      case _ => true
-    }
-  }
-
-  def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] = {
-    collection.find(ackRefSelector(ackRef), projection = None).one[CurlETMPNotification] map {
+  def retrieveETMPNotification(ackRef: String): Future[Option[ETMPNotification]] =
+    collection.find(equal("ackRef", ackRef)).headOption() map {
       case Some(record) => Some(CurlETMPNotification.convertToETMPNotification(record))
       case None => None
     }
-  }
 
-  def wipeETMPNotification: Future[String] = {
-    collection.drop(failIfNotFound = false) map {
-      _ => "Collection dropped"
-    }
-  }
+  def wipeETMPNotification: Future[String] =
+    collection.deleteMany(BsonDocument()).toFuture() map { _ => "All records removed" }
 }

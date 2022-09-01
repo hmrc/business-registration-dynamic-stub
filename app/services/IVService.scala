@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package services
 import cats.data.OptionT
 import models.SetupIVOutcome
 import mongo.IVOutcomeRepository
-import reactivemongo.api.commands.WriteResult
+import org.mongodb.scala.result.UpdateResult
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
@@ -27,10 +27,9 @@ import scala.concurrent.Future
 @Singleton
 class IVService @Inject()(ivOutcomeRepo: IVOutcomeRepository) {
 
-  def setupIVOutcome(journeyId: String, outcome: String): Future[WriteResult] = {
-    val desResponse = SetupIVOutcome(journeyId, outcome)
-    ivOutcomeRepo.upsertIVOutcome(desResponse)
-  }
+  def setupIVOutcome(journeyId: String, outcome: String): Future[UpdateResult] =
+    ivOutcomeRepo.upsertIVOutcome(SetupIVOutcome(journeyId, outcome))
 
-  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = ivOutcomeRepo.fetchIVOutcome(journeyId)
+  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] =
+    ivOutcomeRepo.fetchIVOutcome(journeyId)
 }

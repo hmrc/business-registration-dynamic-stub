@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,37 +18,30 @@ package mongo
 
 import cats.data.OptionT
 import models.SetupDesResponse
-import play.api.libs.json.Json
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
-import reactivemongo.play.json.ImplicitBSONHandlers.{BSONDocumentWrites, JsObjectDocumentWriter}
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.model.ReplaceOptions
+import org.mongodb.scala.result.{DeleteResult, UpdateResult}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DESResponseRepository @Inject()(mongo: ReactiveMongoComponent) extends ReactiveRepository[SetupDesResponse, BSONObjectID](
-  "setup-des-response",
-  mongo.mongoConnector.db,
-  SetupDesResponse.mongoFormat,
-  ReactiveMongoFormats.objectIdFormats) {
+class DESResponseRepository @Inject()(mongo: MongoComponent)
+                                     (implicit ec: ExecutionContext) extends PlayMongoRepository[SetupDesResponse](
+  mongoComponent = mongo,
+  collectionName = "setup-des-response",
+  domainFormat = SetupDesResponse.mongoFormat,
+  indexes = Seq()
+) {
 
-  def storeNextDesResponse(response: SetupDesResponse): Future[WriteResult] = {
-    collection
-      .update(ordered = true)
-      .one(BSONDocument(), response, upsert = true)(global, BSONDocumentWrites, domainFormatImplicit)
-  }
+  def storeNextDesResponse(response: SetupDesResponse): Future[UpdateResult] =
+    collection.replaceOne(BsonDocument(), response, ReplaceOptions().upsert(true)).toFuture()
 
-  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = {
-    OptionT(collection.find(BSONDocument(), projection = None)(BSONDocumentWrites, JsObjectDocumentWriter)
-      .one[SetupDesResponse](domainFormatImplicit, global))
-  }
+  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] =
+    OptionT(collection.find(BsonDocument()).headOption())
 
-  def resetDesResponse: Future[WriteResult] = {
-    collection.delete().one(Json.obj())(global, JsObjectDocumentWriter)
-  }
+  def resetDesResponse: Future[DeleteResult] =
+    collection.deleteOne(BsonDocument()).toFuture()
 }

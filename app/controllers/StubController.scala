@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,22 +80,20 @@ class StubController @Inject()(notificationService: NotificationService,
   }
 
   def notifyBRN(ackRef: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.getCachedNotification(ackRef) flatMap {
-        case Some(record) =>
-          notificationService.callBRN(ackRef, record) map {
-            resp => new Status(resp.status)
-          }
-        case None =>
-          Future.successful(BadRequest("Could not find notification"))
-      }
+    notificationService.getCachedNotification(ackRef) flatMap {
+      case Some(record) =>
+        notificationService.callBRN(ackRef, record) map {
+          resp => new Status(resp.status)
+        }
+      case None =>
+        Future.successful(BadRequest("Could not find notification"))
+    }
   }
 
   def removeCachedNotifications(): Action[AnyContent] = Action.async {
-    implicit request =>
-      notificationService.destroyCachedNotifications map {
-        resp => Ok(Json.obj("status" -> resp))
-      }
+    notificationService.destroyCachedNotifications map {
+      resp => Ok(Json.obj("status" -> resp))
+    }
   }
 
   private[controllers] def generateTimestamp: String = {
@@ -114,18 +112,15 @@ class StubController @Inject()(notificationService: NotificationService,
   }
 
   val submitPaye = Action.async {
-    implicit request =>
-      fetchDesResponse(Accepted)
+    fetchDesResponse(Accepted)
   }
 
   val submitVat = Action.async {
-    implicit request =>
-      fetchDesResponse(Accepted)
+    fetchDesResponse(Accepted)
   }
 
-  val topup = Action {
-    implicit request =>
-      logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
-      Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
+  val topup = Action { request =>
+    logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
+    Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
   }
 }

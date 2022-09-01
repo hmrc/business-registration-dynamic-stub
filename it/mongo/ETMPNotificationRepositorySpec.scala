@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package mongo
 
 import models._
+import org.mongodb.scala.result.InsertOneResult
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import play.api.test.Helpers._
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{BSONDocument, BSONString}
+import uk.gov.hmrc.mongo.MongoComponent
 import util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,23 +31,16 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
 
   class Setup {
 
-    val rmc = app.injector.instanceOf[ReactiveMongoComponent]
+    val rmc = app.injector.instanceOf[MongoComponent]
     val repository = new ETMPNotificationRepository(rmc)
 
-    await(repository.drop)
-    await(repository.count) shouldBe 0
+    repository.deleteAll
+    repository.count shouldBe 0
     await(repository.ensureIndexes)
   }
 
-  def setupCollection(repo: ETMPNotificationRepository, ctRegistration: CurlETMPNotification): Future[WriteResult] = {
-    repo.insert(ctRegistration)
-  }
-
-  "ackRefSelector" should {
-    "return a BSONDoc" in new Setup {
-      repository.ackRefSelector("testAckRef") shouldBe BSONDocument("ackRef" -> BSONString("testAckRef"))
-    }
-  }
+  def setupCollection(repo: ETMPNotificationRepository, ctRegistration: CurlETMPNotification): Future[InsertOneResult] =
+    repo.collection.insertOne(ctRegistration).toFuture()
 
   "cacheETMPNotification" should {
     val data = CurlETMPNotification(
@@ -84,7 +76,7 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
   "wipe" should {
     "return a string" in new Setup {
       val result = await(repository.wipeETMPNotification)
-      result shouldBe "Collection dropped"
+      result shouldBe "All records removed"
     }
   }
 }

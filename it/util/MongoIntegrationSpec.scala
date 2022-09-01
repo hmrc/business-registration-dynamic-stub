@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 package util
 
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.result.DeleteResult
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.Helpers._
-import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import scala.concurrent.ExecutionContext
+import scala.reflect.ClassTag
 
 trait MongoIntegrationSpec extends AnyWordSpec with Matchers {
 
-  implicit class ReactiveRepositoryOps[T](repo: ReactiveRepository[T, _])(implicit ex: ExecutionContext) {
-    def awaitCount: Int = await(repo.count)
+  implicit class MongoRepositoryOps[T](repo: PlayMongoRepository[T])(implicit ex: ExecutionContext, ct: ClassTag[T]) {
+    def count: Int = await(repo.collection.countDocuments().toFuture()).toInt
+    def deleteAll: DeleteResult = await(repo.collection.deleteMany(BsonDocument()).toFuture())
+    def findAll: Seq[T] = await(repo.collection.find(BsonDocument()).toFuture())
   }
 
 }

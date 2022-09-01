@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package services
 import cats.data.OptionT
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
 import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import org.mongodb.scala.result.UpdateResult
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
-import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
@@ -39,22 +39,20 @@ class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
   val username = config.getString(s"basicAuth.username")
   val password = config.getString(s"basicAuth.password")
 
-  def cacheNotification(curl: CurlETMPNotification): Future[Boolean] = {
+  def cacheNotification(curl: CurlETMPNotification): Future[Boolean] =
     etmpRepository.cacheETMPNotification(curl)
-  }
 
-  def getCachedNotification(ackRef: String): Future[Option[ETMPNotification]] = {
+  def getCachedNotification(ackRef: String): Future[Option[ETMPNotification]] =
     etmpRepository.retrieveETMPNotification(ackRef)
-  }
 
-  def setupNextDESResponse(status: Int, optJson: Option[JsValue]): Future[WriteResult] = {
-    val desResponse = SetupDesResponse(status, optJson)
-    DESResponseRepository.storeNextDesResponse(desResponse)
-  }
+  def setupNextDESResponse(status: Int, optJson: Option[JsValue]): Future[UpdateResult] =
+    DESResponseRepository.storeNextDesResponse(SetupDesResponse(status, optJson))
 
-  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] = DESResponseRepository.fetchNextDesResponse
+  def fetchNextDesResponse: OptionT[Future, SetupDesResponse] =
+    DESResponseRepository.fetchNextDesResponse
 
-  def resetDesResponse: Future[Boolean] = DESResponseRepository.resetDesResponse.map(_.ok)
+  def resetDesResponse: Future[Boolean] =
+    DESResponseRepository.resetDesResponse.map(_.wasAcknowledged())
 
   // $COVERAGE-OFF$
   def callBRN(ackRef: String, eTMPNotification: ETMPNotification): Future[WSResponse] = {
@@ -64,8 +62,8 @@ class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
       .withBody(json)
       .post(json)
   }
-
   // $COVERAGE-ON$
 
-  def destroyCachedNotifications: Future[String] = etmpRepository.wipeETMPNotification
+  def destroyCachedNotifications: Future[String] =
+    etmpRepository.wipeETMPNotification
 }

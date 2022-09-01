@@ -7,7 +7,7 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;config.*;poc.view.*;poc.config.*;.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 80,
+    ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
@@ -23,7 +23,8 @@ lazy val microservice = Project(appName, file("."))
     scoverageSettings,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    scalaVersion := "2.12.12"
+    scalaVersion := "2.12.15",
+    scalacOptions += "-Ypartial-unification"
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)

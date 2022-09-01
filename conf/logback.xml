@@ -65,11 +65,6 @@
     <logger name="com.google.inject" level="INFO"/>
 
     <logger name="application" level="DEBUG"/>
-    <logger name="reactivemongo.core.actors.MongoDBSystem" level="INFO"/>
-    <logger name="reactivemongo.core.nodeset.ChannelFactory" level="INFO"/>
-    <logger name="reactivemongo.io.netty.buffer.PooledByteBufAllocator" level="INFO"/>
-    <logger name="reactivemongo.io.netty.util.internal.PlatformDependent" level="INFO"/>
-    <logger name="reactivemongo.api.MongoConnection" level="INFO"/>
     <logger name="connector" level="TRACE">
         <appender-ref ref="STDOUT"/>
     </logger>

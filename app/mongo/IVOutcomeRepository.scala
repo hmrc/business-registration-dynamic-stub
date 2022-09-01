@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,28 @@ package mongo
 
 import cats.data.OptionT
 import models.SetupIVOutcome
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
-import reactivemongo.play.json.ImplicitBSONHandlers.BSONDocumentWrites
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.ReplaceOptions
+import org.mongodb.scala.result.UpdateResult
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IVOutcomeRepository @Inject()(mongo: ReactiveMongoComponent) extends ReactiveRepository[SetupIVOutcome, BSONObjectID](
-  "setup-iv-outcome",
-  mongo.mongoConnector.db,
-  SetupIVOutcome.mongoFormat,
-  ReactiveMongoFormats.objectIdFormats) {
+class IVOutcomeRepository @Inject()(mongo: MongoComponent)
+                                   (implicit ec: ExecutionContext) extends PlayMongoRepository[SetupIVOutcome](
+  mongoComponent = mongo,
+  collectionName = "setup-iv-outcome",
+  domainFormat = SetupIVOutcome.mongoFormat,
+  indexes = Seq()
+) {
 
-  def upsertIVOutcome(data: SetupIVOutcome): Future[WriteResult] = {
-    collection
-      .update(ordered = true)
-      .one(BSONDocument("journeyId" -> data.journeyId), data, upsert = true)(global, BSONDocumentWrites, domainFormatImplicit)
-  }
+  def upsertIVOutcome(data: SetupIVOutcome): Future[UpdateResult] =
+    collection.replaceOne(equal("journeyId", data.journeyId), data, ReplaceOptions().upsert(true)).toFuture()
 
-  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] = {
-    OptionT(collection.find(BSONDocument("journeyId" -> journeyId), projection = None).one[SetupIVOutcome])
-  }
+
+  def fetchIVOutcome(journeyId: String): OptionT[Future, SetupIVOutcome] =
+    OptionT(collection.find(equal("journeyId", journeyId)).headOption())
 }
