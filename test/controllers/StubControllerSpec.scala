@@ -23,7 +23,6 @@ import com.mongodb.client.result.UpdateResult
 import mocks.MockConfig
 import models._
 import org.bson.types.ObjectId
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mongodb.scala.bson.BsonString
@@ -37,6 +36,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.NotificationService
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 
 class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
@@ -45,7 +46,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
 
   implicit val mat: Materializer = Materializer(system)
 
-  val testDateTime = DateTime.parse("2016-10-10T17:00:00.000Z")
+  val testDateTime = LocalDateTime.of(2016,10,10,17,1,2,987654321)
 
   val mockNotifService = mock[NotificationService]
 
@@ -60,10 +61,6 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
   class SetupNoTimestamp {
     val controller = new StubController(mockNotifService, mockConfig, controllerComponents) {
       override def dateTime = testDateTime
-
-      override def generateTimestamp: String = {
-        dateTime.toString()
-      }
     }
   }
 
@@ -84,7 +81,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
           "testBusinessType",
           "testSessionId",
           "testCredId",
-          "2016-10-10T17:00:00.000Z",
+          "2016-10-10T17:01:02.987Z",
           submissionFromAgent = false,
           "en",
           "Director",
@@ -111,7 +108,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
       )
     )
 
-    val successResponse = Json.toJson(DesSuccessResponse(testDateTime.toString, ackRef))
+    val successResponse = Json.toJson(DesSuccessResponse(testDateTime.format(DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'")), ackRef))
     val invalidJsonResponse = Json.toJson(DesFailureResponse("Your submission contains one or more errors"))
 
     "return a 200 with a timestamp and ack ref if the des submission is validated successfully" in new SetupNoTimestamp {
@@ -206,7 +203,7 @@ class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar wit
   "generateTimeStamp" should {
 
     "return a valid UTC timestamp based on the datetime present" in new Setup {
-      controller.generateTimestamp shouldBe "2016-10-10T17:00:00.000Z"
+      controller.generateTimestamp shouldBe "2016-10-10T17:01:02.987Z"
     }
   }
 
