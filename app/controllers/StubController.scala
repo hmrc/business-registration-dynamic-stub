@@ -18,8 +18,6 @@ package controllers
 
 import cats.instances.FutureInstances
 import models._
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
@@ -27,6 +25,8 @@ import services.NotificationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.time.{LocalDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 class StubController @Inject()(notificationService: NotificationService,
                                config: ServicesConfig,
                                cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
-  def dateTime = DateTime.now(DateTimeZone.UTC)
+  def dateTime = LocalDateTime.now(ZoneOffset.UTC)
 
   val busRegNotification = config.baseUrl("business-registration-notification")
 
@@ -97,8 +97,8 @@ class StubController @Inject()(notificationService: NotificationService,
   }
 
   private[controllers] def generateTimestamp: String = {
-    val dT = ISODateTimeFormat.dateTime()
-    dT.print(dateTime)
+    val formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'")
+    dateTime.format(formatter)
   }
 
   private[controllers] def generateAckRef: String = "SCRS01234567890"
