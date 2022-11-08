@@ -21,13 +21,13 @@ lazy val microservice = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     scoverageSettings,
+    scalacOptions += "-Xlint:-unused",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    scalaVersion := "2.12.15",
-    scalacOptions += "-Ypartial-unification"
+    scalaVersion := "2.13.8"
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(integrationTestSettings())
 
-javaOptions in Test += "-Dlogger.resource=logback-test.xml"
+Test / javaOptions += "-Dlogger.resource=logback-test.xml"

@@ -37,7 +37,6 @@ case class BusinessAddress(
                             country: Option[String]
                           )
 
-//todo SCRS-2298 - need to make sure at least one of the following exists?
 case class BusinessContactDetails(phoneNumber: Option[String],
                                   mobileNumber: Option[String],
                                   email: Option[String])
