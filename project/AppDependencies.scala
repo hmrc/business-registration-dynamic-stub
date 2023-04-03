@@ -6,13 +6,13 @@ import sbt._
 object AppDependencies {
 
   private val playVersion                   =  "-play-28"
-  private val bootstrapPlayVersion          =  "7.11.0"
+  private val bootstrapPlayVersion          =  "7.15.0"
   private val scalaTestVersion              =  "3.2.12"
   private val scalaTestPlusPlayVersion      =  "5.1.0"
-  private val flexmarkVersion               =  "0.62.2"
+  private val flexmarkVersion               =  "0.64.0"
   private val wireMockVersion               =  "2.31.0"
-  private val hmrcMongoVersion              =  "0.73.0"
-  private val catsVersion                   =  "2.7.0"
+  private val hmrcMongoVersion              =  "1.1.0"
+  private val catsVersion                   =  "2.9.0"
 
   val compile = Seq(
     ws,

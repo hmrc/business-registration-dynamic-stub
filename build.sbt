@@ -24,10 +24,12 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions += "-Xlint:-unused",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    scalaVersion := "2.13.8"
+    scalaVersion := "2.13.10"
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(integrationTestSettings())
+
+libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 Test / javaOptions += "-Dlogger.resource=logback-test.xml"
