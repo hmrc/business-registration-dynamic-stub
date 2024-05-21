@@ -3,5 +3,3 @@
 ->         /business-incorporation        topup.Routes
 ->         /identity-verification         iv.Routes
 ->         /                              health.Routes
-
-GET        /admin/metrics                 @com.kenshoo.play.metrics.MetricsController.metrics

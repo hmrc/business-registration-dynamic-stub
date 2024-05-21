@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,13 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
 class StubController @Inject()(notificationService: NotificationService,
                                config: ServicesConfig,
-                               cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
+                               cc: ControllerComponents)(implicit val ec: ExecutionContext)  extends BackendController(cc) with FutureInstances {
   def dateTime = LocalDateTime.now(ZoneOffset.UTC)
 
   val busRegNotification = config.baseUrl("business-registration-notification")

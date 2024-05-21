@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@ import services.IVService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IVStubController @Inject()(iVService: IVService, cc: ControllerComponents) extends BackendController(cc) with FutureInstances {
+class IVStubController @Inject()(iVService: IVService, cc: ControllerComponents)(implicit val ec: ExecutionContext)  extends BackendController(cc) with FutureInstances {
 
   def ivOutcome(journeyId: String): Action[AnyContent] = Action.async {
     iVService.fetchIVOutcome(journeyId).semiflatMap { iv =>

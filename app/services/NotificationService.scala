@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,13 @@ import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
                                     DESResponseRepository: DESResponseRepository,
                                     config: ServicesConfig,
-                                    val ws: WSClient) {
+                                    val ws: WSClient)(implicit val ec: ExecutionContext) {
 
 
   val busRegNotif = s"${config.baseUrl("business-registration-notification")}/business-registration-notification"
