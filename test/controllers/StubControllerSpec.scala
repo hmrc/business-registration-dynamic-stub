@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package controllers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import cats.data.OptionT
 import com.mongodb.client.result.UpdateResult
 import mocks.MockConfig
@@ -43,6 +43,7 @@ import scala.concurrent.Future
 class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
 
   implicit val system = ActorSystem("test")
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val mat: Materializer = Materializer(system)
 

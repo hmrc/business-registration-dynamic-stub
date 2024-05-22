@@ -1,7 +1,10 @@
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, integrationTestSettings, scalaSettings}
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
+import uk.gov.hmrc.DefaultBuildSettings
+import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 
 val appName = "business-registration-dynamic-stub"
+
+ThisBuild / majorVersion := 1
+ThisBuild / scalaVersion := "2.13.13"
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -14,22 +17,23 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin): _*)
-  .settings(scalaSettings: _*)
-  .settings(majorVersion := 0)
-  .settings(publishingSettings: _*)
-  .settings(defaultSettings(): _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin) *)
+  .settings(scalaSettings *)
+  .settings(defaultSettings() *)
   .settings(
     scoverageSettings,
     scalacOptions += "-Xlint:-unused",
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    scalaVersion := "2.13.10"
   )
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(integrationTestSettings())
 
-libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+lazy val it = project.in(file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+  .settings(DefaultBuildSettings.itSettings(true))
+  .settings(
+    libraryDependencies ++= AppDependencies(),
+    addTestReportOption(Test, "int-test-reports")
+  )
 
 Test / javaOptions += "-Dlogger.resource=logback-test.xml"

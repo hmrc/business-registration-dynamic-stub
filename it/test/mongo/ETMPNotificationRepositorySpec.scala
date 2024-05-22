@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package mongo
+package test.util.mongo
 
 import models._
+import mongo.ETMPNotificationRepository
 import org.mongodb.scala.result.InsertOneResult
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import play.api.test.Helpers._
 import uk.gov.hmrc.mongo.MongoComponent
-import util.{IntegrationSpecBase, MongoIntegrationSpec}
+import test.util.{IntegrationSpecBase, MongoIntegrationSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

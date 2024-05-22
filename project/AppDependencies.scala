@@ -5,14 +5,15 @@ import sbt._
 
 object AppDependencies {
 
-  private val playVersion                   =  "-play-28"
-  private val bootstrapPlayVersion          =  "7.15.0"
+  private val playVersion                   =  "-play-30"
+  private val bootstrapPlayVersion          =  "8.6.0"
   private val scalaTestVersion              =  "3.2.12"
-  private val scalaTestPlusPlayVersion      =  "5.1.0"
-  private val flexmarkVersion               =  "0.64.0"
-  private val wireMockVersion               =  "2.31.0"
-  private val hmrcMongoVersion              =  "1.1.0"
-  private val catsVersion                   =  "2.9.0"
+  private val scalaTestPlusPlayVersion      =  "7.0.1"
+  private val flexmarkVersion               =  "0.64.8"
+  private val wireMockVersion               =  "3.5.4"
+  private val hmrcMongoVersion              =  "1.9.0"
+  private val catsVersion                   =  "2.10.0"
+  private val playTestVersion               =  "3.0.3"
 
   val compile = Seq(
     ws,
@@ -22,13 +23,14 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc.mongo"         %% s"hmrc-mongo-test$playVersion"     %   hmrcMongoVersion          % "test, it",
-    "org.scalatest"             %%  "scalatest"                       %   scalaTestVersion          % "test, it",
-    "org.scalatestplus.play"    %%  "scalatestplus-play"              %   scalaTestPlusPlayVersion  % "test, it",
-    "com.typesafe.play"         %%  "play-test"                       %   PlayVersion.current       % "test, it",
-    "com.vladsch.flexmark"      %   "flexmark-all"                    %   flexmarkVersion           % "test, it",
-    "org.scalatestplus"         %%  "mockito-4-5"                     % s"$scalaTestVersion.0"      % "test",
-    "com.github.tomakehurst"    %   "wiremock-jre8-standalone"        %   wireMockVersion           % "it"
+    "uk.gov.hmrc.mongo"         %% s"hmrc-mongo-test$playVersion"     %   hmrcMongoVersion          % Test,
+    "uk.gov.hmrc"               %% s"bootstrap-test$playVersion"      %   bootstrapPlayVersion      % Test,
+    "org.scalatest"             %%  "scalatest"                       %   scalaTestVersion          % Test,
+    "org.scalatestplus.play"    %%  "scalatestplus-play"              %   scalaTestPlusPlayVersion  % Test,
+    "org.playframework"         %%  "play-test"                       %   playTestVersion           % Test,
+    "com.vladsch.flexmark"      %   "flexmark-all"                    %   flexmarkVersion           % Test,
+    "org.scalatestplus"         %%  "mockito-4-5"                     % s"$scalaTestVersion.0"      % Test,
+    "org.wiremock"              %   "wiremock-standalone"             %   wireMockVersion           % Test
   )
 
   def apply() = compile ++ test
