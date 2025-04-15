@@ -21,43 +21,28 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 
-case class GroupDetails(
-                         parentCompanyName: String,
-                         companyGroupName: Option[String],
-                         parentUTR: Option[String],
-                         groupAddress: BusinessAddress
-                       )
+case class GroupDetails(parentCompanyName: String, companyGroupName: Option[String], parentUTR: Option[String], groupAddress: BusinessAddress)
 
-case class BusinessAddress(
-                            line1: String,
-                            line2: String,
-                            line3: Option[String],
-                            line4: Option[String],
-                            postcode: Option[String],
-                            country: Option[String]
-                          )
+case class BusinessAddress(line1: String,
+                           line2: String,
+                           line3: Option[String],
+                           line4: Option[String],
+                           postcode: Option[String],
+                           country: Option[String])
 
-case class BusinessContactDetails(phoneNumber: Option[String],
-                                  mobileNumber: Option[String],
-                                  email: Option[String])
+case class BusinessContactDetails(phoneNumber: Option[String], mobileNumber: Option[String], email: Option[String])
 
-case class BusinessContactName(
-                                firstName: String,
-                                middleNames: Option[String],
-                                lastName: Option[String]
-                              )
+case class BusinessContactName(firstName: String, middleNames: Option[String], lastName: Option[String])
 
-case class Metadata(
-                     businessType: String,
-                     sessionId: String,
-                     credentialId: String,
-                     formCreationTimestamp: String,
-                     submissionFromAgent: Boolean,
-                     language: String,
-                     completionCapacity: String,
-                     completionCapacityOther: Option[String],
-                     declareAccurateAndComplete: Boolean
-                   )
+case class Metadata(businessType: String,
+                    sessionId: String,
+                    credentialId: String,
+                    formCreationTimestamp: String,
+                    submissionFromAgent: Boolean,
+                    language: String,
+                    completionCapacity: String,
+                    completionCapacityOther: Option[String],
+                    declareAccurateAndComplete: Boolean)
 
 case class CorporationTax(companyOfficeNumber: String,
                           companyActiveDate: Option[String],
@@ -73,29 +58,22 @@ case class CorporationTax(companyOfficeNumber: String,
                           companyACharity: Boolean,
                           businessAddress: Option[BusinessAddress],
                           businessContactName: Option[BusinessContactName],
-                          businessContactDetails: BusinessContactDetails
-                         )
+                          businessContactDetails: BusinessContactDetails)
 
-case class TakeoverDetails(
-                            businessNameLine1: String,
-                            businessNameLine2: Option[String],
-                            businessEntity: Option[String],
-                            businessTakeoverCRN: Option[String],
-                            businessTakeoverAddress: BusinessAddress,
-                            prevOwnersName: String,
-                            prevOwnerAddress: BusinessAddress
-                          )
+case class TakeoverDetails(businessNameLine1: String,
+                           businessNameLine2: Option[String],
+                           businessEntity: Option[String],
+                           businessTakeoverCRN: Option[String],
+                           businessTakeoverAddress: BusinessAddress,
+                           prevOwnersName: String,
+                           prevOwnerAddress: BusinessAddress)
 
-case class Registration(
-                         metadata: Metadata,
-                         corporationTax: CorporationTax
-                       )
+case class Registration(metadata: Metadata, corporationTax: CorporationTax)
 
-case class FullDesSubmission(acknowledgementReference: String,
-                             registration: Registration)
+case class FullDesSubmission(acknowledgementReference: String, registration: Registration)
 
 object FullDesSubmission {
-  val logger: Logger = Logger(this.getClass())
+  val logger: Logger = Logger(this.getClass)
 
   private val specificCTTakeoverValidation = new Reads[JsValue] {
     override def reads(json: JsValue): JsResult[JsValue] = {
@@ -104,8 +82,7 @@ object FullDesSubmission {
       if (takeOverDetails.isEmpty && takeOverBoolean) {
         logger.error("Take Over Details are missing when hasCompanyTakenOverBusiness is true")
         JsError("Take Over Details are missing when hasCompanyTakenOverBusiness is true")
-      }
-      else {
+      } else {
         JsSuccess(json)
       }
     }
@@ -118,21 +95,21 @@ object FullDesSubmission {
       if (groupDetails.isEmpty && groupBoolean) {
         logger.error("Group Details are missing when companyMemberOfGroup is true")
         JsError("Group Details are missing when companyMemberOfGroup is true")
-      }
-      else {
+      } else {
         JsSuccess(json)
       }
     }
   }
 
-  implicit val bcdReads = Json.format[BusinessContactDetails]
-  implicit val bcnReads = Json.format[BusinessContactName]
-  implicit val baReads = Json.format[BusinessAddress]
-  implicit val groupDetailsFormats = Json.format[GroupDetails]
-  implicit val takeOverDetailsFormat = Json.format[TakeoverDetails]
-  implicit val cTReadsWithSpecificDesSchemaValidation: Format[CorporationTax] = {
-    Format(specificCTTakeoverValidation andThen specificCTGroupValidationAccordingToDesSchema andThen Json.reads[CorporationTax], Json.writes[CorporationTax])
-  }
+  implicit val bcdReads: OFormat[BusinessContactDetails] = Json.format[BusinessContactDetails]
+  implicit val bcnReads: OFormat[BusinessContactName] = Json.format[BusinessContactName]
+  implicit val baReads: OFormat[BusinessAddress] = Json.format[BusinessAddress]
+  implicit val groupDetailsFormats: OFormat[GroupDetails] = Json.format[GroupDetails]
+  implicit val takeOverDetailsFormat: OFormat[TakeoverDetails] = Json.format[TakeoverDetails]
+  implicit val cTReadsWithSpecificDesSchemaValidation: Format[CorporationTax] =
+    Format(
+      specificCTTakeoverValidation andThen specificCTGroupValidationAccordingToDesSchema andThen Json.reads[CorporationTax],
+      Json.writes[CorporationTax])
   implicit val metadataReads: Format[Metadata] = (
     (__ \ "sessionId").format[String] and
       (__ \ "credentialId").format[String] and
@@ -143,7 +120,7 @@ object FullDesSubmission {
       (__ \ "completionCapacity").format[String] and
       (__ \ "completionCapacityOther").formatNullable[String] and
       (__ \ "declareAccurateAndComplete").format[Boolean]
-    ) (Metadata.apply, unlift(Metadata.unapply))
-  implicit val registrationReads = Json.format[Registration]
-  implicit val fullReads = Json.format[FullDesSubmission]
+  )(Metadata.apply, unlift(Metadata.unapply))
+  implicit val registrationReads: OFormat[Registration] = Json.format[Registration]
+  implicit val fullReads: OFormat[FullDesSubmission] = Json.format[FullDesSubmission]
 }

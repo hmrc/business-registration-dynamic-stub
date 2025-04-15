@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ETMPNotification(timestamp: String,
                             regime: String,
@@ -24,7 +24,7 @@ case class ETMPNotification(timestamp: String,
                             status: String)
 
 object ETMPNotification {
-  implicit val format = Json.format[ETMPNotification]
+  implicit val format: OFormat[ETMPNotification] = Json.format[ETMPNotification]
 }
 
 case class CurlETMPNotification(ackRef: String,
@@ -34,7 +34,7 @@ case class CurlETMPNotification(ackRef: String,
                                 status: String)
 
 object CurlETMPNotification {
-  implicit val format = Json.format[CurlETMPNotification]
+  implicit val format: OFormat[CurlETMPNotification] = Json.format[CurlETMPNotification]
 
   def convertToETMPNotification(curl: CurlETMPNotification): ETMPNotification = {
     ETMPNotification(curl.timestamp, curl.regime, curl.`business-tax-identifier`, curl.status)
