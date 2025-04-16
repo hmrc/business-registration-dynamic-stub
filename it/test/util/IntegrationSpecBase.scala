@@ -34,5 +34,5 @@ trait IntegrationSpecBase extends AnyWordSpec with Matchers with GuiceOneServerP
     body.fold(client(path).post(EmptyBody))(json => client(path).post(json))
   }
 
-  def wsGet(path: String): Future[WSResponse] = client(path).get
+  def wsGet(path: String): Future[WSResponse] = client(path).get()
 }

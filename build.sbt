@@ -4,7 +4,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, s
 val appName = "business-registration-dynamic-stub"
 
 ThisBuild / majorVersion := 1
-ThisBuild / scalaVersion := "2.13.13"
+ThisBuild / scalaVersion := "2.13.16"
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -17,7 +17,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin) *)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) *)
   .settings(scalaSettings *)
   .settings(defaultSettings() *)
   .settings(

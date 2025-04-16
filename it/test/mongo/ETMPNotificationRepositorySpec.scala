@@ -22,8 +22,8 @@ import org.mongodb.scala.result.InsertOneResult
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import play.api.test.Helpers._
-import uk.gov.hmrc.mongo.MongoComponent
 import test.util.{IntegrationSpecBase, MongoIntegrationSpec}
+import uk.gov.hmrc.mongo.MongoComponent
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,12 +32,12 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
 
   class Setup {
 
-    val rmc = app.injector.instanceOf[MongoComponent]
+    val rmc: MongoComponent = app.injector.instanceOf[MongoComponent]
     val repository = new ETMPNotificationRepository(rmc)
 
     repository.deleteAll
     repository.count shouldBe 0
-    await(repository.ensureIndexes)
+    await(repository.ensureIndexes())
   }
 
   def setupCollection(repo: ETMPNotificationRepository, ctRegistration: CurlETMPNotification): Future[InsertOneResult] =
@@ -49,7 +49,7 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
     )
 
     "insert a document" in new Setup {
-      val result = repository.cacheETMPNotification(data)
+      val result: Future[Boolean] = repository.cacheETMPNotification(data)
 
       await(result) shouldBe false
     }
@@ -62,13 +62,13 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
 
     "retrieve a document" in new Setup {
       await(repository.cacheETMPNotification(data))
-      val result = await(repository.retrieveETMPNotification("aaa")).get
+      val result: ETMPNotification = await(repository.retrieveETMPNotification("aaa")).get
 
       result shouldBe CurlETMPNotification.convertToETMPNotification(data)
     }
 
     "return none" in new Setup {
-      val result = await(repository.retrieveETMPNotification("zzz"))
+      val result: Option[ETMPNotification] = await(repository.retrieveETMPNotification("zzz"))
 
       result shouldBe None
     }
@@ -76,7 +76,7 @@ class ETMPNotificationRepositorySpec extends IntegrationSpecBase with MongoInteg
 
   "wipe" should {
     "return a string" in new Setup {
-      val result = await(repository.wipeETMPNotification)
+      val result: String = await(repository.wipeETMPNotification)
       result shouldBe "All records removed"
     }
   }

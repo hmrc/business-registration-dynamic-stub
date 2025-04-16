@@ -24,13 +24,13 @@ import scala.language.implicitConversions
 case class DesFailureResponse(reason: String)
 
 object DesFailureResponse {
-  implicit val formats = Json.format[DesFailureResponse]
+  implicit val formats: OFormat[DesFailureResponse] = Json.format[DesFailureResponse]
 }
 
 case class DesSuccessResponse(processingDate: String, acknowledgementReference: String)
 
 object DesSuccessResponse {
-  implicit val formats = Json.format[DesSuccessResponse]
+  implicit val formats: OFormat[DesSuccessResponse] = Json.format[DesSuccessResponse]
 }
 
 case class SetupDesResponse(status: Int, responseJson: Option[JsValue])
@@ -44,5 +44,5 @@ object SetupDesResponse {
   val responseWrites: Writes[SetupDesResponse] = (
     (__ \ "status").write[Int] and
       (__ \ "responseJson").writeNullable[JsValue]
-    ) (unlift(SetupDesResponse.unapply))
+  )(unlift(SetupDesResponse.unapply))
 }
