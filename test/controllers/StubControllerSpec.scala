@@ -38,12 +38,12 @@ import services.NotificationService
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class StubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
 
-  implicit val system = ActorSystem("test")
-  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val system: ActorSystem = ActorSystem("test")
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val mat: Materializer = Materializer(system)
 

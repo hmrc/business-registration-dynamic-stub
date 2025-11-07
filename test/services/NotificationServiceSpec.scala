@@ -28,7 +28,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.ws.WSClient
 import play.api.test.Helpers._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with MockitoSugar with MockConfig {
 
@@ -37,7 +37,7 @@ class NotificationServiceSpec extends AnyWordSpec with GuiceOneAppPerSuite with 
   val mockWs: WSClient = app.injector.instanceOf[WSClient]
 
   class Setup {
-    implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+    implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
     object TestService extends NotificationService(mockRepo, mockDesRespRepo, mockConfig, mockWs) {
 
