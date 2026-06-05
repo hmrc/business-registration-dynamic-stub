@@ -1,0 +1,2 @@
+POST        /business-incorporation/:regime                      @controllers.BusinessIncorporation.incorporate(regime)
+POST        /business-registration/:regime                        @controllers.BusinessRegistration.register(regime)
