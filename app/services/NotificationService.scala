@@ -17,8 +17,9 @@
 package services
 
 import cats.data.OptionT
+import models.hip.SetupHipResponse
 import models.{CurlETMPNotification, ETMPNotification, SetupDesResponse}
-import mongo.{DESResponseRepository, ETMPNotificationRepository}
+import mongo.{DESResponseRepository, ETMPNotificationRepository, HIPResponseRepository}
 import org.mongodb.scala.result.UpdateResult
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
@@ -30,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
                                     DESResponseRepository: DESResponseRepository,
+                                    hipResponseRepository: HIPResponseRepository,
                                     config: ServicesConfig,
                                     val ws: WSClient)(implicit val ec: ExecutionContext) {
 
@@ -49,6 +51,19 @@ class NotificationService @Inject()(etmpRepository: ETMPNotificationRepository,
 
   def fetchNextDesResponse: OptionT[Future, SetupDesResponse] =
     DESResponseRepository.fetchNextDesResponse
+
+  def fetchNextHipResponse: OptionT[Future, SetupHipResponse] =
+    hipResponseRepository.fetchNextHipResponse
+
+
+  def resetHipResponse: Future[Boolean] = {
+    hipResponseRepository.resetHipResponse.map(_.wasAcknowledged())
+  }
+
+   def setupNextHIPResponse(status: Int, optJson: Option[JsValue]): Future[UpdateResult] =
+   hipResponseRepository.storeNextHipResponse(SetupHipResponse(status, optJson))
+
+
 
   def resetDesResponse: Future[Boolean] =
     DESResponseRepository.resetDesResponse.map(_.wasAcknowledged())
