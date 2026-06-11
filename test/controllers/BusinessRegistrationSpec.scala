@@ -49,9 +49,6 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
       val requestJson = Json.toJson(fullModel)
 
-      println(Json.prettyPrint(requestJson))
-
-
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
 
@@ -63,9 +60,6 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     "return a 200 with registration that includes metadata.agentDetails submission for regime CT after successful validation" in new Setup{
       val requestJson = Json.toJson(registration.copy(metadata = Some(metadata.copy(agentDetails = Some(agentDetails)))))
-
-      val json = Json.toJson(registration)
-      println(Json.prettyPrint(json))
 
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
