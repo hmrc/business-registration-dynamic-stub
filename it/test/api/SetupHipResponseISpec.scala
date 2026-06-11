@@ -36,7 +36,7 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
     hipResponseRepo.count shouldBe 0
   }
 
-  val submissionPath = "business-registration/CT"
+  val submissionPath = "RESTAdapter/business-registration/CT"
 
   val hipSubmissionJson: JsValue = Json.parse(
     """
