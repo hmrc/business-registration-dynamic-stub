@@ -196,9 +196,7 @@ final case class LimitedCompany(
                                  crn: Option[String],
                                  directors: Seq[DirectorDetails],
                                  registeredOfficeAddress: Address,
-                                 operatingOccPensionScheme: Boolean,
-
-
+                                 operatingOccPensionScheme: Boolean
                                )
 
 object LimitedCompany {
