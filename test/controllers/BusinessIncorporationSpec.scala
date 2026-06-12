@@ -30,13 +30,10 @@ import scala.concurrent.Future
 class BusinessIncorporationSpec  extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
 
   "incorporate" should {
-    "return an accepted" in new Setup {
+    val controller = new BusinessIncorporation(stubControllerComponents())
+    "return an accepted" in {
       val result: Future[Result] = controller.incorporate("CT")(FakeRequest())
      status(result) shouldBe ACCEPTED    }
   }
 }
 
-
-class Setup {
-  val controller = new BusinessIncorporation(stubControllerComponents())
-}
