@@ -165,6 +165,7 @@ final case class PayAsYouEarnType(
                                    employingPeople: EmployingPeople
                                  )
 
+
 object PayAsYouEarnType {
   implicit val format: OFormat[PayAsYouEarnType] = Json.format[PayAsYouEarnType]
 }
@@ -215,6 +216,7 @@ object BusinessContactDetails {
 final case class DirectorDetails(directorName: Name,
                                  directorNINO: Option[String]
                                 )
+
 
 object DirectorDetails {
   implicit val format: OFormat[DirectorDetails] = Json.format[DirectorDetails]
