@@ -19,12 +19,13 @@ package controllers
 import cats.instances.FutureInstances
 import com.google.inject.Singleton
 import models.Regime
-import models.hip.{BusinessRegistrationRequest, HipFailureResponse, HipSuccessResponse, SetupHipResponse}
+import models.hip.{BusinessRegistrationRequest, HipFailureResponse, HipResponse, HipSuccessResponse, SetupHipResponse}
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.NotificationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.Inject
@@ -38,7 +39,7 @@ class BusinessRegistration @Inject()(notificationService: NotificationService, c
 
   def dateTime = LocalDateTime.now(ZoneOffset.UTC)
 
-  private def successHipResponse = HipSuccessResponse(generateTimestamp, generateAckRef)
+  private def successHipResponse = HipResponse(HipSuccessResponse(generateTimestamp, generateAckRef))
   private lazy val invalidJsonResponse = HipFailureResponse("Your submission contains one or more errors")
 
 

@@ -53,7 +53,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
     }
@@ -64,7 +64,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -89,7 +89,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -103,7 +103,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -118,7 +118,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -133,7 +133,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -147,7 +147,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
@@ -162,7 +162,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "companyUTR").asOpt[String].get shouldBe "123456789"
 
@@ -175,7 +175,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "companyActiveDate").asOpt[String].get shouldBe "2026-10-10"
 
@@ -188,7 +188,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "companyNameAbbreviation").asOpt[String].get shouldBe "companyNameAbbreviation"
 
@@ -200,7 +200,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "crn").asOpt[String].get shouldBe "12345678"
 
@@ -215,7 +215,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "startDateOfFirstAccountingPeriod").asOpt[String].get shouldBe "2026-10-09"
 
@@ -228,7 +228,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "intendedAccountsPreparationDate").asOpt[String].get shouldBe "2026-10-09"
 
@@ -240,7 +240,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "companyACharityIncOrg").asOpt[Boolean].get shouldBe true
 
@@ -252,7 +252,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val result = call(controller.submit("CT"), request)
 
       status(result) shouldBe OK
-      val responseJson = contentAsJson(result)
+      val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "charityTaxpayerReference").asOpt[String].get shouldBe "ref"
 
