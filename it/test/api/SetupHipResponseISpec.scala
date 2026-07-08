@@ -36,7 +36,7 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
     hipResponseRepo.count shouldBe 0
   }
 
-  val submissionPath = "RESTAdapter/business-registration/CT"
+  val submissionPath = "etmp/RESTAdapter/business-registration/CT"
 
   val hipSubmissionJson: JsValue = Json.parse(
     """
@@ -106,7 +106,7 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
 
   "POST /setup-next-hip-response" should {
 
-    val uri = "RESTAdapter/setup-next-hip-response"
+    val uri = "etmp/RESTAdapter/setup-next-hip-response"
 
     "setup a hip response status for the next call to /business-registration/CT and once called reset the setup response" in new Setup {
 
