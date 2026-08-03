@@ -63,8 +63,8 @@ object CorporationTax {
 
 final case class GroupDetails(
                                parentCompanyName: String,
-                               companyGroupName: String,
-                               parentUTR: String,
+                               companyGroupName: Option[String],
+                               parentUTR: Option[String],
                                groupAddress: Address
                              )
 
@@ -161,7 +161,7 @@ object ContactDetails {
 }
 
 final case class PayAsYouEarnType(
-                                   limitedCompany: LimitedCompany,
+                                   limitedCompany: Option[LimitedCompany],
                                    employingPeople: EmployingPeople
                                  )
 
@@ -175,7 +175,7 @@ final case class EmployingPeople(
                                   dateOfFirstEXBForEmployees: String,
 
                                   numberOfEmployeesExpectedThisYear: String,
-                                  engageSubcontractors: String,
+                                  engageSubcontractors: Boolean,
                                   correspondenceName: Option[String],
                                   correspondenceContactDetails: ContactDetails,
                                   payeCorrespondenceAddress: Address
@@ -197,7 +197,7 @@ final case class LimitedCompany(
                                  crn: Option[String],
                                  directors: Seq[DirectorDetails],
                                  registeredOfficeAddress: Address,
-                                 operatingOccPensionScheme: Boolean
+                                 operatingOccPensionScheme: Option[Boolean]
                                )
 
 object LimitedCompany {

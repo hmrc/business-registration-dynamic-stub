@@ -255,10 +255,17 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       val responseJson = contentAsJson(result) \ "success"
       (responseJson \ "acknowledgementReference").as[String] shouldBe "SCRS01234567890"
       (requestJson \ "registration" \ "corporationTax" \ "charityTaxpayerReference").asOpt[String].get shouldBe "ref"
-
     }
 
+    "return BadRequest for an invalid payload" in new Setup {
+      val requestJson = Json.obj({"someKey" -> "someValue"})
+      val request = FakeRequest().withJsonBody(requestJson)
+      val result = call(controller.submit(Regime.CT), request)
 
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result).as[HipFailureResponse] shouldBe
+        HipFailureResponse("Your submission contains one or more errors")
+    }
   }
 
   "submit for PAYE" should {
@@ -279,9 +286,6 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     implicit val system: ActorSystem = ActorSystem("test")
     implicit val mat: Materializer = Materializer(system)
 
-
-
-
     val metadata = Metadata(
       businessType = "Limited company",
       sessionID = "sessionId",
@@ -298,9 +302,6 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       declareAccurateAndComplete = true,
       confirmTermsAndConditions = Some(true)
     )
-
-
-
 
     val address = Address(
       "address line 1",
@@ -389,8 +390,8 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       )),
       groupDetails = Some(GroupDetails(
         parentCompanyName  = "Parent Corp",
-        companyGroupName   = "Group Name",
-        parentUTR          = "9876543210",
+        companyGroupName   = Some("Group Name"),
+        parentUTR          = Some("9876543210"),
         groupAddress       = fullAddress
       )),
       businessContactName = Some(name),
@@ -436,7 +437,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     )
 
     val fullPayAsYouEarn = PayAsYouEarnType(
-      limitedCompany = LimitedCompany(
+      limitedCompany = Some(LimitedCompany(
         companyUTR               = Some("1234567890"),
         companiesHouseCompanyName = "Full Company Name",
         nameOfBusiness           = Some("Trading Name"),
@@ -451,12 +452,12 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
         crn                      = Some("12345678"),
         directors                = Seq(DirectorDetails(directorName = name, directorNINO = Some("AB123456C"))),
         registeredOfficeAddress  = fullAddress,
-        operatingOccPensionScheme = true
-      ),
+        operatingOccPensionScheme = Some(true)
+      )),
       employingPeople = EmployingPeople(
         dateOfFirstEXBForEmployees          = "2026-01-01",
         numberOfEmployeesExpectedThisYear   = "10",
-        engageSubcontractors                = "yes",
+        engageSubcontractors                = true,
         correspondenceName                  = Some("Correspondence Name"),
         correspondenceContactDetails        = ContactDetails(
           phoneNumber  = Some("9999999"),
@@ -467,6 +468,5 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
         payeCorrespondenceAddress = fullAddress
       )
     )
-
   }
 }
