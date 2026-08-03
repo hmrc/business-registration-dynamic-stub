@@ -35,14 +35,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSugar with MockConfig {
-  "submit for CT" should  {
+  "submit for CT" should {
     "return a 200 with registration submission for regime CT after successful validation of full model" in new Setup {
 
       val fullModel = registration.copy(
-        metadata        = Some(fullMetadata),
+        metadata = Some(fullMetadata),
         payAsYouEarnType = Some(fullPayAsYouEarn),
-        registration    = Some(registration.registration.get.copy(
-          metaData      = fullMetadata,
+        registration = Some(registration.registration.get.copy(
+          metaData = fullMetadata,
           corporationTax = fullCorpTax
         ))
       )
@@ -58,7 +58,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
     }
 
-    "return a 200 with registration that includes metadata.agentDetails submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes metadata.agentDetails submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(metadata = Some(metadata.copy(agentDetails = Some(agentDetails)))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -69,18 +69,18 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       (responseJson \ "processingDate").asOpt[String] shouldBe defined
 
       val agentJson = requestJson \ "metadata" \ "agentDetails"
-      (agentJson \ "name" \ "title").asOpt[String]      shouldBe Some("Mr")
-      (agentJson \ "name" \ "firstName").asOpt[String]  shouldBe Some("firstName")
+      (agentJson \ "name" \ "title").asOpt[String] shouldBe Some("Mr")
+      (agentJson \ "name" \ "firstName").asOpt[String] shouldBe Some("firstName")
       (agentJson \ "name" \ "middleName").asOpt[String] shouldBe Some("middle name")
-      (agentJson \ "name" \ "lastName").asOpt[String]   shouldBe Some("lastName")
-      (agentJson \ "vrn").asOpt[String]                 shouldBe Some("vrn")
-      (agentJson \ "businessName").asOpt[String]        shouldBe Some("some business name")
+      (agentJson \ "name" \ "lastName").asOpt[String] shouldBe Some("lastName")
+      (agentJson \ "vrn").asOpt[String] shouldBe Some("vrn")
+      (agentJson \ "businessName").asOpt[String] shouldBe Some("some business name")
       (agentJson \ "address" \ "addressLine1").asOpt[String] shouldBe Some("address line 1")
       (agentJson \ "address" \ "addressLine2").asOpt[String] shouldBe Some("City")
-      (agentJson \ "contactDetails" \ "phoneNumber").asOpt[String]  shouldBe Some("5555555")
+      (agentJson \ "contactDetails" \ "phoneNumber").asOpt[String] shouldBe Some("5555555")
       (agentJson \ "contactDetails" \ "mobileNumber").asOpt[String] shouldBe Some("11111")
-      (agentJson \ "contactDetails" \ "faxNumber").asOpt[String]    shouldBe Some("6666666")
-      (agentJson \ "contactDetails" \ "email").asOpt[String]        shouldBe Some("test@gmail.com")
+      (agentJson \ "contactDetails" \ "faxNumber").asOpt[String] shouldBe Some("6666666")
+      (agentJson \ "contactDetails" \ "email").asOpt[String] shouldBe Some("test@gmail.com")
     }
 
     "return a 200 with registration that includes metadata.clientNameOrReference submission for regime CT after successful validation" in new Setup {
@@ -141,7 +141,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     }
 
-    "return a 200 with registration that includes metadata.confirmTermsAndConditions submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes metadata.confirmTermsAndConditions submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(metadata = Some(metadata.copy(confirmTermsAndConditions = Some(true)))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -156,7 +156,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
 
-    "return a 200 with registration that includes corporationTax.companyUTR submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.companyUTR submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(companyUTR = Some("123456789"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -169,7 +169,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
 
-    "return a 200 with registration that includes corporationTax.companyActiveDate submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.companyActiveDate submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(companyActiveDate = Some("2026-10-10"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -182,7 +182,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
 
-    "return a 200 with registration that includes corporationTax.companyNameAbbreviation submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.companyNameAbbreviation submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(companyNameAbbreviation = Some("companyNameAbbreviation"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -194,7 +194,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     }
 
-    "return a 200 with registration that includes corporationTax.crn submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.crn submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(crn = Some("12345678"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -207,7 +207,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
 
-    "return a 200 with registration that includes corporationTax.startDateOfFirstAccountingPeriod submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.startDateOfFirstAccountingPeriod submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration =
         Some(registration.registration.get.copy(corporationTax =
           corporationTax.copy(startDateOfFirstAccountingPeriod = Some("2026-10-09"))))))
@@ -222,7 +222,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
 
-    "return a 200 with registration that includes corporationTax.intendedAccountsPreparationDate submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.intendedAccountsPreparationDate submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(intendedAccountsPreparationDate = Some("2026-10-09"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -234,7 +234,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     }
 
-    "return a 200 with registration that includes corporationTax.companyACharityIncOrg submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.companyACharityIncOrg submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(companyACharityIncOrg = Some(true))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -246,7 +246,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     }
 
-    "return a 200 with registration that includes corporationTax.charityTaxpayerReference submission for regime CT after successful validation" in new Setup{
+    "return a 200 with registration that includes corporationTax.charityTaxpayerReference submission for regime CT after successful validation" in new Setup {
       val requestJson = Json.toJson(registration.copy(registration = Some(registration.registration.get.copy(corporationTax = corporationTax.copy(charityTaxpayerReference = Some("ref"))))))
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit("CT"), request)
@@ -258,7 +258,9 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     }
 
     "return BadRequest for an invalid payload" in new Setup {
-      val requestJson = Json.obj({"someKey" -> "someValue"})
+      val requestJson = Json.obj({
+        "someKey" -> "someValue"
+      })
       val request = FakeRequest().withJsonBody(requestJson)
       val result = call(controller.submit(Regime.CT), request)
 
@@ -269,7 +271,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
   }
 
   "submit for PAYE" should {
-    "fetch the response" in new Setup{
+    "fetch the response" in new Setup {
       val request = FakeRequest().withJsonBody(Json.obj())
       val result = call(controller.submit(Regime.PAYE), request)
 
@@ -278,10 +280,9 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
   }
 
 
-
   class Setup {
     val mockNotifyService: NotificationService = mock[NotificationService]
-    val controller = new BusinessRegistration(mockNotifyService,   stubControllerComponents())
+    val controller = new BusinessRegistration(mockNotifyService, stubControllerComponents())
     when(mockNotifyService.fetchNextHipResponse).thenReturn(OptionT(Future.successful(None: Option[SetupHipResponse])))
     implicit val system: ActorSystem = ActorSystem("test")
     implicit val mat: Materializer = Materializer(system)
@@ -315,8 +316,8 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     val fullAddress = address.copy(
       addressLine3 = Some("line 3"),
       addressLine4 = Some("line 4"),
-      postcode    = Some("AA1 5BB"),
-      country     = Some("UK")
+      postcode = Some("AA1 5BB"),
+      country = Some("UK")
     )
     val name = Name(
       title = Some("Mr"),
@@ -330,20 +331,20 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       address = Some(address),
       businessName = Some("some business name"),
       contactDetails = ContactDetails(
-        phoneNumber =  Some("5555555"),
+        phoneNumber = Some("5555555"),
         mobileNumber = Some("11111"),
         faxNumber = Some("6666666"),
         email = Some("test@gmail.com")
       ))
 
     val fullMetadata = metadata.copy(
-      agentDetails           = Some(agentDetails),
-      clientNameOrReference  = Some("clientRef"),
+      agentDetails = Some(agentDetails),
+      clientNameOrReference = Some("clientRef"),
       submissionResponseEmail = Some("response@test.com"),
       completionCapacityOther = Some("other capacity"),
-      optOutOfSAEnrollment   = Some(true)
+      optOutOfSAEnrollment = Some(true)
     )
-    val corporationTax =       CorporationTax(
+    val corporationTax = CorporationTax(
       companyUTR = Some("123456789"),
       companyOfficeNumber = "12345678",
       companyActiveDate = None,
@@ -371,35 +372,35 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
         ))
     val fullCorpTax = corporationTax.copy(
-      companyActiveDate                = Some("2026-01-01"),
-      companyNameAbbreviation          = Some("CompAbbr"),
-      crn                              = Some("12345678"),
+      companyActiveDate = Some("2026-01-01"),
+      companyNameAbbreviation = Some("CompAbbr"),
+      crn = Some("12345678"),
       startDateOfFirstAccountingPeriod = Some("2026-04-06"),
-      intendedAccountsPreparationDate  = Some("2027-04-05"),
-      companyACharityIncOrg            = Some(true),
-      charityTaxpayerReference         = Some("charityRef"),
-      businessAddress                  = fullAddress,
+      intendedAccountsPreparationDate = Some("2027-04-05"),
+      companyACharityIncOrg = Some(true),
+      charityTaxpayerReference = Some("charityRef"),
+      businessAddress = fullAddress,
       businessTakeOverDetails = Some(BusinessTakeOverDetails(
-        businessNameLine1    = "Takeover Business",
-        businessNameLine2    = Some("Takeover Line 2"),
-        businessEntity       = Some("Partnership"),
-        businessTakeoverCRN  = Some("TO123456"),
+        businessNameLine1 = "Takeover Business",
+        businessNameLine2 = Some("Takeover Line 2"),
+        businessEntity = Some("Partnership"),
+        businessTakeoverCRN = Some("TO123456"),
         businessTakeoverAddress = fullAddress,
-        previousOwnerName    = "Previous Owner",
-        prevOwnerAddress     = fullAddress
+        previousOwnerName = "Previous Owner",
+        prevOwnerAddress = fullAddress
       )),
       groupDetails = Some(GroupDetails(
-        parentCompanyName  = "Parent Corp",
-        companyGroupName   = Some("Group Name"),
-        parentUTR          = Some("9876543210"),
-        groupAddress       = fullAddress
+        parentCompanyName = "Parent Corp",
+        companyGroupName = Some("Group Name"),
+        parentUTR = Some("9876543210"),
+        groupAddress = fullAddress
       )),
       businessContactName = Some(name),
       businessContactDetails = BusinessContactDetails(
-        phoneNumber   = Some("7777777"),
-        mobileNumber  = Some("22222"),
-        faxNumber     = Some("8888888"),
-        email         = Some("contact@test.com")
+        phoneNumber = Some("7777777"),
+        mobileNumber = Some("22222"),
+        faxNumber = Some("8888888"),
+        email = Some("contact@test.com")
       )
     )
     val registration = BusinessRegistrationRequest(
@@ -438,32 +439,32 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     val fullPayAsYouEarn = PayAsYouEarnType(
       limitedCompany = Some(LimitedCompany(
-        companyUTR               = Some("1234567890"),
+        companyUTR = Some("1234567890"),
         companiesHouseCompanyName = "Full Company Name",
-        nameOfBusiness           = Some("Trading Name"),
-        businessAddress          = Some(fullAddress),
-        businessContactDetails   = BusinessContactDetails(
-          phoneNumber  = Some("5555555"),
+        nameOfBusiness = Some("Trading Name"),
+        businessAddress = Some(fullAddress),
+        businessContactDetails = BusinessContactDetails(
+          phoneNumber = Some("5555555"),
           mobileNumber = Some("11111"),
-          faxNumber    = Some("6666666"),
-          email        = Some("business@test.com")
+          faxNumber = Some("6666666"),
+          email = Some("business@test.com")
         ),
-        natureOfBusiness         = "Software Development",
-        crn                      = Some("12345678"),
-        directors                = Seq(DirectorDetails(directorName = name, directorNINO = Some("AB123456C"))),
-        registeredOfficeAddress  = fullAddress,
+        natureOfBusiness = "Software Development",
+        crn = Some("12345678"),
+        directors = Seq(DirectorDetails(directorName = name, directorNINO = Some("AB123456C"))),
+        registeredOfficeAddress = fullAddress,
         operatingOccPensionScheme = Some(true)
       )),
       employingPeople = EmployingPeople(
-        dateOfFirstEXBForEmployees          = "2026-01-01",
-        numberOfEmployeesExpectedThisYear   = "10",
-        engageSubcontractors                = true,
-        correspondenceName                  = Some("Correspondence Name"),
-        correspondenceContactDetails        = ContactDetails(
-          phoneNumber  = Some("9999999"),
+        dateOfFirstEXBForEmployees = "2026-01-01",
+        numberOfEmployeesExpectedThisYear = "10",
+        engageSubcontractors = true,
+        correspondenceName = Some("Correspondence Name"),
+        correspondenceContactDetails = ContactDetails(
+          phoneNumber = Some("9999999"),
           mobileNumber = Some("33333"),
-          faxNumber    = Some("4444444"),
-          email        = Some("corr@test.com")
+          faxNumber = Some("4444444"),
+          email = Some("corr@test.com")
         ),
         payeCorrespondenceAddress = fullAddress
       )

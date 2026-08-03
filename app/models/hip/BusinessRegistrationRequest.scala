@@ -51,7 +51,7 @@ final case class CorporationTax(companyUTR: Option[String],
                                 businessAddress: Address,
                                 businessTakeOverDetails: Option[BusinessTakeOverDetails],
                                 groupDetails: Option[GroupDetails],
-                                businessContactName: Option[Name] ,
+                                businessContactName: Option[Name],
                                 businessContactDetails: BusinessContactDetails
 
                                )
@@ -111,11 +111,11 @@ object Metadata {
 
 
 final case class AgentDetails(
-                             name: Name,
-                             vrn: Option[String],
-                             businessName: Option[String],
-                             address: Option[Address],
-                             contactDetails: ContactDetails
+                               name: Name,
+                               vrn: Option[String],
+                               businessName: Option[String],
+                               address: Option[Address],
+                               contactDetails: ContactDetails
                              )
 
 object AgentDetails {
@@ -123,12 +123,11 @@ object AgentDetails {
 }
 
 
-
 final case class Name(
-                     title: Option[String],
-                     firstName: Option[String],
-                     middleName: Option[String],
-                     lastName: Option[String]
+                       title: Option[String],
+                       firstName: Option[String],
+                       middleName: Option[String],
+                       lastName: Option[String]
                      )
 
 object Name {
@@ -136,13 +135,13 @@ object Name {
 }
 
 final case class Address(
-                           addressLine1: String,
-                           addressLine2: String,
-                           addressLine3: Option[String],
-                           addressLine4: Option[String],
-                           postcode: Option[String],
-                           country: Option[String]
-                         )
+                          addressLine1: String,
+                          addressLine2: String,
+                          addressLine3: Option[String],
+                          addressLine4: Option[String],
+                          postcode: Option[String],
+                          country: Option[String]
+                        )
 
 object Address {
   implicit val format: OFormat[Address] = Json.format[Address]
@@ -193,7 +192,7 @@ final case class LimitedCompany(
                                  nameOfBusiness: Option[String],
                                  businessAddress: Option[Address],
                                  businessContactDetails: BusinessContactDetails,
-                                 natureOfBusiness:  String,
+                                 natureOfBusiness: String,
                                  crn: Option[String],
                                  directors: Seq[DirectorDetails],
                                  registeredOfficeAddress: Address,
@@ -203,6 +202,7 @@ final case class LimitedCompany(
 object LimitedCompany {
   implicit val format: OFormat[LimitedCompany] = Json.format[LimitedCompany]
 }
+
 final case class BusinessContactDetails(
                                          phoneNumber: Option[String],
                                          mobileNumber: Option[String],
@@ -213,6 +213,7 @@ final case class BusinessContactDetails(
 object BusinessContactDetails {
   implicit val format: OFormat[BusinessContactDetails] = Json.format[BusinessContactDetails]
 }
+
 final case class DirectorDetails(directorName: Name,
                                  directorNINO: Option[String]
                                 )

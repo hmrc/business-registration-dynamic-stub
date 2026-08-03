@@ -25,12 +25,15 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class BusinessIncorporation @Inject()( cc: ControllerComponents)(implicit val ec: ExecutionContext)  extends BackendController(cc) with FutureInstances {
+class BusinessIncorporation @Inject()(cc: ControllerComponents)(implicit val ec: ExecutionContext) extends BackendController(cc) with FutureInstances {
 
   val logger: Logger = Logger(this.getClass())
+
   def incorporate(regime: String): Action[AnyContent] = Action { request =>
     logger.info(s"[BusinessIncorporation] [incorporate] Received incorporate for regime ${regime} containing: ${request.body}")
-    Accepted(Json.obj("success" -> {Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890")}))
+    Accepted(Json.obj("success" -> {
+      Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890")
+    }))
   }
 
 }
