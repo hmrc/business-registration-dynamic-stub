@@ -118,7 +118,7 @@ class StubController @Inject()(notificationService: NotificationService,
     fetchDesResponse(Accepted)
   }
 
-  val topup = Action { request =>
+  val topup = Action { (request: Request[AnyContent]) =>
     logger.info(s"[StubController] [topup] Received topup containing: ${request.body}")
     Accepted(Json.obj("processingDate" -> "2015-12-17T09:30:47Z", "acknowledgementReference" -> "SCRS01234567890"))
   }

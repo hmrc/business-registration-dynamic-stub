@@ -1,0 +1,3 @@
+POST        /business-incorporation/:regime                      @controllers.BusinessIncorporation.incorporate(regime)
+POST        /business-registration/:regime                        @controllers.BusinessRegistration.submit(regime)
+POST        /setup-next-hip-response/:status                     @controllers.BusinessRegistration.setupNextHIPResponse(status: Int)
