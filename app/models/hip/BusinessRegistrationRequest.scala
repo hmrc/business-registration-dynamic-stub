@@ -28,7 +28,7 @@ object BusinessRegistrationRequest {
   implicit val format: OFormat[BusinessRegistrationRequest] = Json.format[BusinessRegistrationRequest]
 }
 
-final case class Registration(metaData: Metadata, corporationTax: CorporationTax)
+final case class Registration(metadata: Metadata, corporationTax: CorporationTax)
 
 object Registration {
   implicit val format: OFormat[Registration] = Json.format[Registration]
@@ -78,7 +78,7 @@ final case class BusinessTakeOverDetails(
                                           businessEntity: Option[String],
                                           businessTakeoverCRN: Option[String],
                                           businessTakeoverAddress: Address,
-                                          previousOwnerName: String,
+                                          prevOwnersName: String,
                                           prevOwnerAddress: Address
                                         )
 
@@ -89,8 +89,8 @@ object BusinessTakeOverDetails {
 
 final case class Metadata(
                            businessType: String,
-                           sessionID: String,
-                           credentialID: String,
+                           sessionId: String,
+                           credentialId: String,
                            formCreationTimestamp: String,
                            language: String,
                            submissionFromAgent: Boolean,
@@ -135,10 +135,10 @@ object Name {
 }
 
 final case class Address(
-                          addressLine1: String,
-                          addressLine2: String,
-                          addressLine3: Option[String],
-                          addressLine4: Option[String],
+                          line1: String,
+                          line2: String,
+                          line3: Option[String],
+                          line4: Option[String],
                           postcode: Option[String],
                           country: Option[String]
                         )

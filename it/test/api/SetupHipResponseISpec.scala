@@ -44,8 +44,8 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
       |  "acknowledgementReference" : "SCRS01234567890",
       |  "metadata" : {
       |    "businessType" : "Limited company",
-      |    "sessionID" : "sessionId",
-      |    "credentialID" : "credentialId",
+      |    "sessionId" : "sessionId",
+      |    "credentialId" : "credentialId",
       |    "formCreationTimestamp" : "2026-06-08",
       |    "language" : "ENG",
       |    "submissionFromAgent" : true,
@@ -59,8 +59,8 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
       |      "vrn" : "vrn",
       |      "businessName" : "some business name",
       |      "address" : {
-      |        "addressLine1" : "address line 1",
-      |        "addressLine2" : "City"
+      |        "line1" : "address line 1",
+      |        "line2" : "City"
       |      },
       |      "contactDetails" : {
       |        "phoneNumber" : "5555555",
@@ -74,10 +74,10 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
       |    "confirmTermsAndConditions" : true
       |  },
       |  "registration" : {
-      |    "metaData" : {
+      |    "metadata" : {
       |      "businessType" : "Limited company",
-      |      "sessionID" : "sessionId",
-      |      "credentialID" : "credentialId",
+      |      "sessionId" : "sessionId",
+      |      "credentialId" : "credentialId",
       |      "formCreationTimestamp" : "2026-06-08",
       |      "language" : "ENG",
       |      "submissionFromAgent" : true,
@@ -95,8 +95,8 @@ class SetupHipResponseISpec extends IntegrationSpecBase with MongoIntegrationSpe
       |      "companyACharity" : false,
       |      "charityTaxpayerReference" : "taxPayer ref",
       |      "businessAddress" : {
-      |        "addressLine1" : "address line 1",
-      |        "addressLine2" : "City"
+      |        "line1" : "address line 1",
+      |        "line2" : "City"
       |      },
       |      "businessContactDetails" : { }
       |    }
