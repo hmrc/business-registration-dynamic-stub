@@ -42,7 +42,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
         metadata = Some(fullMetadata),
         payAsYouEarnType = Some(fullPayAsYouEarn),
         registration = Some(registration.registration.get.copy(
-          metaData = fullMetadata,
+          metadata = fullMetadata,
           corporationTax = fullCorpTax
         ))
       )
@@ -75,8 +75,8 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       (agentJson \ "name" \ "lastName").asOpt[String] shouldBe Some("lastName")
       (agentJson \ "vrn").asOpt[String] shouldBe Some("vrn")
       (agentJson \ "businessName").asOpt[String] shouldBe Some("some business name")
-      (agentJson \ "address" \ "addressLine1").asOpt[String] shouldBe Some("address line 1")
-      (agentJson \ "address" \ "addressLine2").asOpt[String] shouldBe Some("City")
+      (agentJson \ "address" \ "line1").asOpt[String] shouldBe Some("address line 1")
+      (agentJson \ "address" \ "line2").asOpt[String] shouldBe Some("City")
       (agentJson \ "contactDetails" \ "phoneNumber").asOpt[String] shouldBe Some("5555555")
       (agentJson \ "contactDetails" \ "mobileNumber").asOpt[String] shouldBe Some("11111")
       (agentJson \ "contactDetails" \ "faxNumber").asOpt[String] shouldBe Some("6666666")
@@ -289,8 +289,8 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
 
     val metadata = Metadata(
       businessType = "Limited company",
-      sessionID = "sessionId",
-      credentialID = "credentialId",
+      sessionId = "sessionId",
+      credentialId = "credentialId",
       formCreationTimestamp = "2026-06-08",
       language = "ENG",
       submissionFromAgent = true,
@@ -314,8 +314,8 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
     )
 
     val fullAddress = address.copy(
-      addressLine3 = Some("line 3"),
-      addressLine4 = Some("line 4"),
+      line3 = Some("line 3"),
+      line4 = Some("line 4"),
       postcode = Some("AA1 5BB"),
       country = Some("UK")
     )
@@ -386,7 +386,7 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
         businessEntity = Some("Partnership"),
         businessTakeoverCRN = Some("TO123456"),
         businessTakeoverAddress = fullAddress,
-        previousOwnerName = "Previous Owner",
+        prevOwnersName = "Previous Owner",
         prevOwnerAddress = fullAddress
       )),
       groupDetails = Some(GroupDetails(
@@ -409,11 +409,11 @@ class BusinessRegistrationSpec extends AnyWordSpec with Matchers with MockitoSug
       payAsYouEarnType = None,
       registration =
         Some(Registration(
-          metaData =
+          metadata =
             Metadata(
               businessType = "Limited company",
-              sessionID = "sessionId",
-              credentialID = "credentialId",
+              sessionId = "sessionId",
+              credentialId = "credentialId",
               formCreationTimestamp = "2026-06-08",
               language = "ENG",
               submissionFromAgent = true,
